@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "case-viewer"
+version = "0.1.0"
+description = "A stand-alone app to visualise JSON-LD files content complied with UOC/CASE ontologies"
+authors = ["Fabrizio Turchi <fabrizio.turchi@cnr.it>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+requests = "^2.31.0"
+json5 = "^0.9.25"
+pyqt5 = "^5.15.10"
+argparse = "^1.4.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
