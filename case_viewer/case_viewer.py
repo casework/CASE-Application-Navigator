@@ -34,11 +34,15 @@ class view(QWidget):
 		super(view, self).__init__()
 		self.tree = QTreeView(self)
 
+		self.tree_cyber_item = ''
+
 		self.table = QTableView(self)
-		#self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-		#self.table.setWordWrap(True)        
 		self.tableData = tableData
 		self.treeData = treeData
+
+		self.textEdit = QTextEdit()
+		self.textEdit.setDocumentTitle("Details")
+		self.textEdit.setHtml('<h2>Here the details will be displayed</h2>')
 
 
 		self.model = TableModel(tableData)
@@ -48,10 +52,13 @@ class view(QWidget):
 
 
 		grid = QGridLayout()
-		grid.setSpacing(15)
+		grid.setSpacing(10)
 
-		grid.addWidget(self.tree, 1, 0, 8, 10)
-		grid.addWidget(self.table, 1, 3, 8, 8)
+		#grid.addWidget(widget, row, column, row_span, col_span)
+		grid.addWidget(self.tree, 1, 0, 10, 4)
+		#grid.addWidget(self.table, 1, 2, 8, 8)
+		grid.addWidget(self.table, 1, 4, 10, 10)
+		grid.addWidget(self.textEdit, 1, 14, 10, 6)
 
 		self.setLayout(grid)
 
@@ -62,6 +69,7 @@ class view(QWidget):
 		self.importData(self.treeData)
 		self.tree.clicked.connect(self.itemSelectionChanged)
 		self.tree.collapseAll()
+		self.table.clicked.connect(self.itemClicked)
 
 	# Function to save populate treeview with a dictionary
 	def importData(self, data, root=None):
@@ -587,7 +595,9 @@ class view(QWidget):
 
 		if threadId == '':
 			print('Thread id not found')
+			self.tree_cyber_item = ''
 		else:
+			self.tree_cyber_item = text
 			print(f'Thread id={threadId}')
 			self.tableData = self.buildTableData(threadId)
 			self.tableData.insert(0, self.headers)
@@ -600,6 +610,18 @@ class view(QWidget):
 
 		#self.table.resizeColumnsToContents()
 
+	def itemClicked(self, item):
+		#text = index.data(Qt.DisplayRole)
+		print(f"in itemTableSelected, item row={item.row()}, cyber items={self.tree_cyber_item}")
+		if item.row():
+			if 'Email' in self.tree_cyber_item:
+				row = int(item.row())
+				body = emailMessages[row]["uco-observable:body"]
+				print(f"body={body}, self.tree_cyber_item={self.tree_cyber_item}")
+				self.textEdit.setHtml('<h2>Message body</h2>' + body)
+			else:
+				self.textEdit.setHtml('<h2>Here the details of the cyber item will be displayed</h2>')
+				print("item selected is not an Email")
 
 def get_attribute(data, property, default_value):
 	return data.get(property) or default_value
@@ -1191,8 +1213,8 @@ def processEmailMessage(jsonObj, facet):
 	emailCc = get_attribute(facet, "uco-observable:cc", "-")
 	emailBcc = get_attribute(facet, "uco-observable:bcc", "-")
 	emailBody = get_attribute(facet, "uco-observable:body", "-")
-	if emailBody != "-":
-		emailBody = emailBody[0:100] + "..."
+	# if emailBody != "-":
+	# 	emailBody = emailBody[0:100] + "..."
 
 	emailSubject = get_attribute(facet, "uco-observable:subject", "-")
 	emailStatus = get_attribute(facet, "uco-observable:allocationStatus", "-")
