@@ -37,6 +37,7 @@ class view(QWidget):
 		self.tree_cyber_item = ''
 
 		self.table = QTableView(self)
+		self.table.setVisible(True)
 		self.tableData = tableData
 		self.treeData = treeData
 
@@ -195,19 +196,13 @@ class view(QWidget):
 			print('Thread not found')
 			return tData
 		#print(f"threadSlot=\n{threadSlot}")
-		self.headers = ["From", "To", "Date", "Text", "Type", "Attachments"]
+		self.headers = ["Date", "Attachments"]
 		for idMsg in threadSlot:
 			for m in chatMessages:
 				if idMsg == m["@id"]:
-					msgFrom = m["uco-observable:from"]
-					msgTo = m["uco-observable:to"]
 					msgDate = m["uco-observable:sentTime"]
-					msgText = m["uco-observable:messageText"]
-					msgType = m["uco-observable:messageType"]
 					msgAttachments = m["uco-observable:attachedFiles"]
-
-
-					tData.append([msgFrom, msgTo, msgDate, msgText, msgType, msgAttachments])
+					tData.append([msgDate, msgAttachments])
 
 		return tData
 
@@ -215,14 +210,12 @@ class view(QWidget):
 		tData = []
 
 		if idObject == ':Accounts':
-			self.headers = ["Identifier", "Phone", "Application", "Name"]
+			self.headers = ["Identifier", "Phone"]
 
 			for a in accounts:
 				accountIdentifier = a["uco-observable:accountIdentifier"]
 				accountPhone = a["uco-observable:phoneAccount"]
-				accountName = a["uco-observable:displayName"]
-				applicationName = a["uco-observable:application"]
-				tData.append([accountIdentifier, accountPhone, applicationName, accountName])
+				tData.append([accountIdentifier, accountPhone])
 
 		return tData
 
@@ -251,7 +244,7 @@ class view(QWidget):
 			self.headers = ["Subject", "Repeat", "Start time", "End time", "Status"]
 			for c in calendars:
 				calendarSubject = c["uco-observable:subject"]
-				calendarRepeatInterval = c["uco-observable:repeatInterval"]
+				calendarRepeatInterval = c["uco-observable:recurrence"]
 				calendarStartDate = c["uco-observable:startTime"]
 				calendarEndDate = c["uco-observable:endTime"]
 				calendarStatus = c["uco-observable:eventStatus"]
@@ -267,17 +260,14 @@ class view(QWidget):
 			print('Thread not found')
 			return tData
 		else:
-			self.headers = ["From", "To", "Application", "Date", "Duration"]
+			self.headers = ["From", "To", "Date", "Duration"]
 			print("phoneCall LEN: " + str(len(phoneCalls)))
 			for c in phoneCalls:
 				callDate = c["uco-observable:startTime"]
 				callDuration = c["uco-observable:duration"]
-				#callType = c["uco-observable:callType"]
-				#callOutcome = c["uco-observable:proposed:outcome"]
-				callApplication = c["uco-core:name"]
 				callFrom = c["uco-observable:from"]
 				callTo = c["uco-observable:to"]
-				tData.append([callFrom, callTo, callApplication, callDate, callDuration])
+				tData.append([callFrom, callTo, callDate, callDuration])
 
 			return tData
 
@@ -368,14 +358,13 @@ class view(QWidget):
 		tData = []
 
 		if idObject == ':Cookies':
-			self.headers = ["Name", "Path", "Created time", "Expiration time"]
+			self.headers = ["Name", "Created time", "Expiration time"]
 			for c in cookies:
 				cookieName = c["uco-observable:cookieName"]
-				cookiePath = c["uco-observable:cookiePath"]
 				cookieCreatedTime = c["uco-observable:observableCreatedTime"]
 				cookieExpirationTime = c["uco-observable:expirationTime"]
 
-				tData.append([cookieName, cookiePath, cookieCreatedTime, cookieExpirationTime])
+				tData.append([cookieName, cookieCreatedTime, cookieExpirationTime])
 
 		return tData
 
@@ -402,8 +391,7 @@ class view(QWidget):
 	def buildDataFiles(self, idObject):
 
 		tData = []
-
-		print(f"in buildDataFiles, idObject={idObject}")
+		
 		if idObject == ':Images':
 			self.headers = ["Type", "Name", "Path", "Size"]
 			for f in filesImage:
@@ -598,9 +586,22 @@ class view(QWidget):
 			self.tree_cyber_item = ''
 		else:
 			self.tree_cyber_item = text
-			print(f'Thread id={threadId}')
+			#print(f'Thread id={threadId}, self.tree_cyber_item={text}')
 			self.tableData = self.buildTableData(threadId)
 			self.tableData.insert(0, self.headers)
+			print(f"self.tree_cyber_item={self.tree_cyber_item}")
+			if "chat N." in self.tree_cyber_item:
+				pos = self.tree_cyber_item.find('(')
+				idx = int((self.tree_cyber_item[7:pos])) - 1
+				html_text="<h2>Chat messages</h2><br/>"
+				for t in chatThreads[idx]['thread:messages']:
+					for m in chatMessages:
+						if m["@id"] == t:
+							html_text = html_text + \
+							"<strong>From</strong> " + m["uco-observable:from"] + "<br/>" + \
+							"<strong>To</strong> " + m["uco-observable:to"] + "<br/>" + \
+							"<strong>Message</strong><br/>" + m["uco-observable:messageText"] + '<hr/>'
+				self.textEdit.setHtml(html_text)
 
 		self.model = TableModel(self.tableData)
 
@@ -619,6 +620,16 @@ class view(QWidget):
 				body = emailMessages[row]["uco-observable:body"]
 				print(f"body={body}, self.tree_cyber_item={self.tree_cyber_item}")
 				self.textEdit.setHtml('<h2>Message body</h2>' + body)
+			elif "chat N." in self.tree_cyber_item:
+				pass #processed in the itemSelectionChanged method
+			elif "Cookies" in self.tree_cyber_item:
+				cookie_value = cookies[item.row() - 1]["uco-observable:cookiePath"]
+				self.textEdit.setHtml('<h2>Cookie value</h2>' + cookie_value)
+			elif "Accounts" in self.tree_cyber_item:
+				name = accounts[item.row() - 1]["uco-observable:displayName"]
+				identifier = accounts[item.row() - 1]["uco-observable:accountIdentifier"]
+				self.textEdit.setHtml('<h2>Account name</h2>' + name + "<br/>" +
+					"<h2>Identifier</h2>" + identifier)
 			else:
 				self.textEdit.setHtml('<h2>Here the details of the cyber item will be displayed</h2>')
 				print("item selected is not an Email")
@@ -729,7 +740,7 @@ def processMessage(uuid_object=None, facet=None):
 
 	msg_from = facet.get("uco-observable:from", None)
 
-	if not msg_from:
+	if msg_from:
 		msg_from_id = facet["uco-observable:from"]["@id"]
 	else:
 		msg_from_id = "X"
@@ -737,7 +748,7 @@ def processMessage(uuid_object=None, facet=None):
 	msg_to = facet.get("uco-observable:to", None)
 
 	msg_to_id = []
-	if not msg_to:
+	if msg_to:
 		for item in facet["uco-observable:to"]:
 			msg_to_id.append(item["@id"])
 
@@ -1029,9 +1040,6 @@ def processWirelessNetwork(jsonObj, facet):
 	wId = jsonObj["@id"]
 	wSsid = get_attribute(facet, "uco-observable:ssid", '')
 	wBssid = get_attribute(facet, "uco-observable:baseStation", '')
-	#wMac = get_attribute(facet, "not-in-ontology:macAddress", '')
-	#wAccuracy = get_attribute(facet, "uco-observable:accuracy", '')
-	#wTime = get_attribute(facet, "not-in-ontology:timeConnection", EMPTY_DATA)
 
 	try:
 		wireless_net.append(
@@ -1183,7 +1191,7 @@ def processCalendar(uuid_object=None, facet=None):
 				"uco-observable:subject":calendarSubject,
 				"uco-observable:startTime":calendarStartTime,
 			  "uco-observable:endTime":calendarEndTime,
-			  "drafting:repeatInterval":calendarRepeatInterval,
+			  "uco-observable:recurrence":calendarRepeatInterval,
 			  "uco-observable:eventStatus":calendarStatus
 			})
 	except Exception as e:
@@ -1579,13 +1587,13 @@ if __name__ == '__main__':
 		for jsonObj in json_data:
 			nObjects +=1
 			uuid_object = jsonObj['@id']
-			print(f"{C_GREEN} Observable n. {str(nObjects)} - uuid={uuid_object}", end='\r')
+			#print(f"{C_GREEN} Observable n. {str(nObjects)} - uuid={uuid_object}", end='\r')
 			dataFacets = jsonObj.get("uco-core:hasFacet", None)
 			if not dataFacets:
 				observableType = jsonObj.get("@type", None)
-				# Only the ObservableRelationship  is considered.
+				# Only the ObservableRelationship is considered.
 				# Others (i.e. uco-identity:Identity, case-investigation:InvestigativeAction,
-				# uco-tool:Tool, uco-identity:Organization, uco-role:Role, 
+				# uco-tool:Tool, uco-identity:Organization, uco-role:Role,
 				# case-investigation:ProvenanceRecord, case-investigation:InvestigativeAction)
 				# are ignored.
 				if observableType == "uco-observable:ObservableRelationship":
@@ -1599,7 +1607,7 @@ if __name__ == '__main__':
 				for facet in dataFacets:
 					objectType = facet.get("@type", None)
 					if objectType:
-						print(f"objectType={objectType}")
+						#print(f"objectType={objectType}")
 						if objectType == "uco-observable:MessageFacet":
 							processMessage(uuid_object=uuid_object, facet=facet)
 						elif objectType == "uco-observable:SMSMessageFacet":
@@ -1664,13 +1672,11 @@ if __name__ == '__main__':
 	i = 1
 	totMessages = 0
 
-	for a in accounts:
-		if a["@id"] == "kb:27a87a37-4ff1-45b4-9813-9f6b2e1f491d":
-			print(f"accountIdentifier= {a['uco-observable:accountIdentifier']}")
-			print(f"phoneAccount= {a['uco-observable:phoneAccount']}")
-			print(f"application= {a['uco-observable:application']}")
-			print(f"displayName= {a['uco-observable:displayName']}")
-
+	# for a in chatThreads:
+	# 	print(f"@id= {a['@id']}")
+	# 	print(f"length= {a['thread:length']}")
+	# 	print(f"messages= {a['thread:messages']}")
+	
 	treeData.insert(0, {'unique_id': ':00000000', 'parent_id': '0', 'short_name': 'Cyber items' })
 
 	totAccounts = len(accounts)
@@ -1695,7 +1701,7 @@ if __name__ == '__main__':
 
 	for t in chatThreads:
 		id = t['@id']
-		text = 'N. ' + str(i) + ' (' + number_with_dots(t["thread:length"]) + ')'
+		text = 'chat N. ' + str(i) + ' (' + number_with_dots(t["thread:length"]) + ')'
 		totMessages += int(t["thread:length"])
 		treeData.append({'unique_id': id, 'parent_id': ':ChatMessages', 'short_name': text})
 		i = i + 1
@@ -1755,12 +1761,12 @@ if __name__ == '__main__':
 	totWord = len(filesWord)
 	if totWord > 0:
 		wordText = 'Words ' + '(' + number_with_dots(totWord) + ')'
-		treeData.append({'unique_id': ':Words', 'parent_id': ':Files', 'short_name': wordText }) 
+		treeData.append({'unique_id': ':Words', 'parent_id': ':Files', 'short_name': wordText })
 
 	totWord = len(filesRTF)
 	if totWord > 0:
 		rtfText = 'RTFs ' + '(' + number_with_dots(totWord) + ')'
-		treeData.append({'unique_id': ':RTFs', 'parent_id': ':Files', 'short_name': rtfText })  
+		treeData.append({'unique_id': ':RTFs', 'parent_id': ':Files', 'short_name': rtfText })
 
 	totVideos = len(filesVideo)
 	if totVideos > 0:
