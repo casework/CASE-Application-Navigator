@@ -608,10 +608,20 @@ class view(QWidget):
 				html_text="<h2>Accounts data</h2><br/>"
 				for a in accounts:
 					html_text = html_text + \
-					"identifier: " + a["uco-observable:accountIdentifier"] + "<br/>" + \
-					"phone number: " + a["uco-observable:phoneAccount"] + "<br/>" + \
-					"application: " + a["uco-observable:application"] + "<br/>" + \
-					"display name: " + a["uco-observable:displayName"] + "<hr/>"
+					"<strong>Identifier</strong> " + a["uco-observable:accountIdentifier"] + "<br/>" + \
+					"<strong>Phone number</strong> " + a["uco-observable:phoneAccount"] + "<br/>" + \
+					"<strong>Application</strong> " + a["uco-observable:application"] + "<br/>" + \
+					"<strong>Display name</strong> " + a["uco-observable:displayName"] + "<hr/>"
+				self.textEdit.setHtml(html_text)
+			elif "Calls " in self.tree_cyber_item:
+				html_text="<h2>Calls data</h2><br/>"
+				for a in phoneCalls:
+					html_text = html_text + \
+					"<strong>From</strong> " + a["uco-observable:to"] + "<br/>" + \
+					"<strong>To</strong> " + a["uco-observable:to"] + "<br/>" + \
+					"<strong>Name</strong> " + a["uco-core:name"] + "<br/>" + \
+					"<strong>Start time</strong> " + a["uco-observable:startTime"] + "<br/>" + \
+					"<strong>Duration (s.)</strong> " + a["uco-observable:duration"] + "<hr/>"
 				self.textEdit.setHtml(html_text)
 
 		self.model = TableModel(self.tableData)
@@ -641,6 +651,14 @@ class view(QWidget):
 				identifier = accounts[item.row() - 1]["uco-observable:accountIdentifier"]
 				self.textEdit.setHtml('<h2>Account name</h2>' + name + "<br/>" +
 					"<h2>Identifier</h2>" + identifier)
+			elif "Calls" in self.tree_cyber_item:
+				i = item.row() - 1
+				call_value = "<strong>From</strong> " + phoneCalls[i]["uco-observable:from"] + "<br/>" + \
+				"<strong>To</strong> " + phoneCalls[i]["uco-observable:to"] + "<br/>" + \
+				"<strong>Name</strong> " + phoneCalls[i]["uco-core:name"] + "<br/>" + \
+				"<strong>Start time</strong> " + phoneCalls[i]["uco-observable:startTime"] + "<br/>" + \
+				"<strong>Duration (s.)</strong> " + phoneCalls[i]["uco-observable:duration"]
+				self.textEdit.setHtml('<h2>Call</h2>' + call_value)
 			else:
 				self.textEdit.setHtml('<h2>Here the details of the cyber item will be displayed</h2>')
 				print("item selected is not an Email")
@@ -1159,14 +1177,14 @@ def processCall(uuid_object=None, facet=None):
 				break
 
 	callApplication = "-"
-	callApplicationId = facet["uco-observable:application"].get("@id", None)
-	if callApplicationId:
+	callApplicationId = facet["uco-observable:application"].get("@id", "-")
+	if callApplicationId != "-":
 		for a in applications:
 			if a["@id"] == callApplicationId:
 				callApplication = a["uco-core:name"]
 
-	callStartTime = facet.get("uco-observable:startTime", None)
-	if callStartTime:
+	callStartTime = facet.get("uco-observable:startTime", "-")
+	if callStartTime != "-":
 		callStartTime = facet["uco-observable:startTime"]["@value"]
 
 	callDuration = get_attribute(facet, "uco-observable:duration", "-")
