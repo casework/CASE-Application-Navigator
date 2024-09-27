@@ -68,9 +68,9 @@ class view(QWidget):
 		#self.tree.header().setDefaultSectionSize(180)
 		self.tree.setModel(self.model)
 		self.importData(self.treeData)
-		self.tree.clicked.connect(self.itemSelectionChanged)
+		self.tree.clicked.connect(self.select_left_bar)
 		self.tree.collapseAll()
-		self.table.clicked.connect(self.itemClicked)
+		self.table.clicked.connect(self.select_main_panel)
 
 	# Function to save populate treeview with a dictionary
 	def importData(self, data, root=None):
@@ -210,12 +210,14 @@ class view(QWidget):
 		tData = []
 
 		if idObject == ':Accounts':
-			self.headers = ["Identifier", "Phone"]
+			self.headers = ["Identifier", "Phone", "Display name", "Application"]
 
 			for a in accounts:
 				accountIdentifier = a["uco-observable:accountIdentifier"]
 				accountPhone = a["uco-observable:phoneAccount"]
-				tData.append([accountIdentifier, accountPhone])
+				accountApplication = a["uco-observable:application"]
+				accountDiplayName = a["uco-observable:displayName"]
+				tData.append([accountIdentifier, accountPhone, accountDiplayName, accountApplication])
 
 		return tData
 
@@ -571,7 +573,7 @@ class view(QWidget):
 
 
 
-	def itemSelectionChanged(self, index):
+	def select_left_bar(self, index):
 		text = index.data(Qt.DisplayRole)
 		threadId = ''
 
@@ -602,6 +604,15 @@ class view(QWidget):
 							"<strong>To</strong> " + m["uco-observable:to"] + "<br/>" + \
 							"<strong>Message</strong><br/>" + m["uco-observable:messageText"] + '<hr/>'
 				self.textEdit.setHtml(html_text)
+			elif "Accounts " in self.tree_cyber_item:
+				html_text="<h2>Accounts data</h2><br/>"
+				for a in accounts:
+					html_text = html_text + \
+					"identifier: " + a["uco-observable:accountIdentifier"] + "<br/>" + \
+					"phone number: " + a["uco-observable:phoneAccount"] + "<br/>" + \
+					"application: " + a["uco-observable:application"] + "<br/>" + \
+					"display name: " + a["uco-observable:displayName"] + "<hr/>"
+				self.textEdit.setHtml(html_text)
 
 		self.model = TableModel(self.tableData)
 
@@ -611,7 +622,7 @@ class view(QWidget):
 
 		#self.table.resizeColumnsToContents()
 
-	def itemClicked(self, item):
+	def select_main_panel(self, item):
 		#text = index.data(Qt.DisplayRole)
 		print(f"in itemTableSelected, item row={item.row()}, cyber items={self.tree_cyber_item}")
 		if item.row():
@@ -621,11 +632,11 @@ class view(QWidget):
 				print(f"body={body}, self.tree_cyber_item={self.tree_cyber_item}")
 				self.textEdit.setHtml('<h2>Message body</h2>' + body)
 			elif "chat N." in self.tree_cyber_item:
-				pass #processed in the itemSelectionChanged method
+				pass #processed in the select_left_bar method
 			elif "Cookies" in self.tree_cyber_item:
 				cookie_value = cookies[item.row() - 1]["uco-observable:cookiePath"]
 				self.textEdit.setHtml('<h2>Cookie value</h2>' + cookie_value)
-			elif "Accounts" in self.tree_cyber_item:
+			elif "Accounts " in self.tree_cyber_item:
 				name = accounts[item.row() - 1]["uco-observable:displayName"]
 				identifier = accounts[item.row() - 1]["uco-observable:accountIdentifier"]
 				self.textEdit.setHtml('<h2>Account name</h2>' + name + "<br/>" +
@@ -820,7 +831,7 @@ def processThread(uuid_object=None, facet=None):
 		print("ERROR: in appending dictionary to chatThreads, @id=" + threadId)
 		print (e)
 
-def processAccount(uuid_object=None, facet=None, kind=None):	
+def processAccount(uuid_object=None, facet=None, kind=None):
 	accountFound = False
 	accountPhoneNumber = ""
 	accountIdentifier = ""
@@ -836,9 +847,11 @@ def processAccount(uuid_object=None, facet=None, kind=None):
 				break
 	elif kind == "ApplicationAccountFacet":
 		idApp = facet["uco-observable:application"]["@id"]
+		accountApplication = 'xxx'
 		for app in applications:
 			if app["@id"] == idApp:
 				accountApplication = app["uco-core:name"]
+				break
 		for a in accounts:
 			if a["@id"] == uuid_object:
 				a["uco-observable:application"] = accountApplication
@@ -869,7 +882,7 @@ def processAccount(uuid_object=None, facet=None, kind=None):
 					"uco-observable:accountIdentifier": accountIdentifier,
 					"uco-observable:phoneAccount":accountPhoneNumber,
 					"uco-observable:application":accountApplication,
-					  "uco-observable:displayName": accountName
+					"uco-observable:displayName": accountName
 				}
 			)
 
@@ -1110,7 +1123,9 @@ def processCoordinate(uuid_object=None, facet=None):
 		print (e)
 
 def processApplication(uuid_object=None, facet=None):
-	applicationName = get_attribute(facet, "uco-core:name", "-")
+	applicationName = get_attribute(facet, "uco-core:name", "xxx")
+	if applicationName == "xxx":
+		applicationName = get_attribute(facet, "uco-observable:applicationIdentifier", "yyy")
 
 	try:
 		applications.append(
@@ -1420,9 +1435,14 @@ def processWebBookmark(jsonObj, facet):
 	if webCreatedTime:
 		webCreatedTime = facet["uco-observable:observableCreatedTime"]["@value"]
 
-	webUrl = get_attribute(facet, "uco-observable:urlTargeted", None)
-	if webUrl:
-		webUrl = facet["uco-observable:urlTargeted"]["@value"]
+	webUrlId = get_attribute(facet, "uco-observable:urlTargeted", None)
+	if webUrlId:
+		for u in webURLs:
+			if u["@id"] == webUrlId:
+				webUrl = u["uco-observable:url"]
+				break
+	else:
+		webUrl = "-"
 
 	webPath = get_attribute(facet, "uco-observable:bookmarkPath", "-")	
 
@@ -1587,7 +1607,7 @@ if __name__ == '__main__':
 		for jsonObj in json_data:
 			nObjects +=1
 			uuid_object = jsonObj['@id']
-			#print(f"{C_GREEN} Observable n. {str(nObjects)} - uuid={uuid_object}", end='\r')
+			print(f"{C_GREEN} Observable n. {str(nObjects)} - uuid={uuid_object}", end='\r')
 			dataFacets = jsonObj.get("uco-core:hasFacet", None)
 			if not dataFacets:
 				observableType = jsonObj.get("@type", None)
