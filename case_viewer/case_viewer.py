@@ -636,28 +636,30 @@ class view(QWidget):
 		#text = index.data(Qt.DisplayRole)
 		print(f"in itemTableSelected, item row={item.row()}, cyber items={self.tree_cyber_item}")
 		if item.row():
+			row = int(item.row() - 1)
 			if 'Email' in self.tree_cyber_item:
-				row = int(item.row())
 				body = emailMessages[row]["uco-observable:body"]
 				print(f"body={body}, self.tree_cyber_item={self.tree_cyber_item}")
 				self.textEdit.setHtml('<h2>Message body</h2>' + body)
 			elif "chat N." in self.tree_cyber_item:
-				pass #processed in the select_left_bar method
+				chat_value = "<strong>From</strong> " + chatMessages[row]["uco-observable:from"] + "<br/>" + \
+				"<strong>To</strong> " + chatMessages[row]["uco-observable:to"] + "<br/>" + \
+				"<strong>Message</strong><br/>" + chatMessages[row]["uco-observable:messageText"] + '<hr/>'
+				self.textEdit.setHtml('<h2>Chat message</h2>' + chat_value)
 			elif "Cookies" in self.tree_cyber_item:
-				cookie_value = cookies[item.row() - 1]["uco-observable:cookiePath"]
+				cookie_value = cookies[row]["uco-observable:cookiePath"]
 				self.textEdit.setHtml('<h2>Cookie value</h2>' + cookie_value)
 			elif "Accounts " in self.tree_cyber_item:
-				name = accounts[item.row() - 1]["uco-observable:displayName"]
-				identifier = accounts[item.row() - 1]["uco-observable:accountIdentifier"]
+				name = accounts[row]["uco-observable:displayName"]
+				identifier = accounts[row]["uco-observable:accountIdentifier"]
 				self.textEdit.setHtml('<h2>Account name</h2>' + name + "<br/>" +
 					"<h2>Identifier</h2>" + identifier)
 			elif "Calls" in self.tree_cyber_item:
-				i = item.row() - 1
-				call_value = "<strong>From</strong> " + phoneCalls[i]["uco-observable:from"] + "<br/>" + \
-				"<strong>To</strong> " + phoneCalls[i]["uco-observable:to"] + "<br/>" + \
-				"<strong>Name</strong> " + phoneCalls[i]["uco-core:name"] + "<br/>" + \
-				"<strong>Start time</strong> " + phoneCalls[i]["uco-observable:startTime"] + "<br/>" + \
-				"<strong>Duration (s.)</strong> " + phoneCalls[i]["uco-observable:duration"]
+				call_value = "<strong>From</strong> " + phoneCalls[row]["uco-observable:from"] + "<br/>" + \
+				"<strong>To</strong> " + phoneCalls[row]["uco-observable:to"] + "<br/>" + \
+				"<strong>Name</strong> " + phoneCalls[row]["uco-core:name"] + "<br/>" + \
+				"<strong>Start time</strong> " + phoneCalls[row]["uco-observable:startTime"] + "<br/>" + \
+				"<strong>Duration (s.)</strong> " + phoneCalls[row]["uco-observable:duration"]
 				self.textEdit.setHtml('<h2>Call</h2>' + call_value)
 			else:
 				self.textEdit.setHtml('<h2>Here the details of the cyber item will be displayed</h2>')
