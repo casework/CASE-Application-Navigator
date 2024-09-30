@@ -360,13 +360,14 @@ class view(QWidget):
 		tData = []
 
 		if idObject == ':Cookies':
-			self.headers = ["Name", "Created time", "Expiration time"]
+			self.headers = ["Name", "Path", "Application", "Created time", "Expiration time"]
 			for c in cookies:
 				cookieName = c["uco-observable:cookieName"]
+				cookiePath = c["uco-observable:cookiePath"]
+				cookieApp = c["uco-observable:cookieApp"]
 				cookieCreatedTime = c["uco-observable:observableCreatedTime"]
 				cookieExpirationTime = c["uco-observable:expirationTime"]
-
-				tData.append([cookieName, cookieCreatedTime, cookieExpirationTime])
+				tData.append([cookieName, cookiePath, cookieApp, cookieCreatedTime, cookieExpirationTime])
 
 		return tData
 
@@ -385,7 +386,6 @@ class view(QWidget):
 				emailStatus = e["uco-observable:allocationStatus"]
 				emailFrom = e["uco-observable:from"]
 				emailTo = e["uco-observable:to"]
-
 				tData.append([emailFrom, emailTo, emailDate, emailSubject, emailBody, emailStatus])
 
 		return tData
@@ -401,7 +401,6 @@ class view(QWidget):
 				fileName = f["uco-observable:fileName"]
 				filePath = f["uco-observable:filePath"]
 				fileSize = f["uco-observable:fileSize"]
-
 				tData.append([fileType, fileName, filePath, fileSize])
 
 		if idObject == ':Texts':
@@ -572,7 +571,6 @@ class view(QWidget):
 		return tData
 
 
-
 	def select_left_bar(self, index):
 		text = index.data(Qt.DisplayRole)
 		threadId = ''
@@ -588,49 +586,26 @@ class view(QWidget):
 			self.tree_cyber_item = ''
 		else:
 			self.tree_cyber_item = text
-			#print(f'Thread id={threadId}, self.tree_cyber_item={text}')
 			self.tableData = self.buildTableData(threadId)
 			self.tableData.insert(0, self.headers)
 			print(f"self.tree_cyber_item={self.tree_cyber_item}")
+			html_text = ""
 			if "chat N." in self.tree_cyber_item:
-				pos = self.tree_cyber_item.find('(')
-				idx = int((self.tree_cyber_item[7:pos])) - 1
-				html_text="<h2>Chat messages</h2><br/>"
-				for t in chatThreads[idx]['thread:messages']:
-					for m in chatMessages:
-						if m["@id"] == t:
-							html_text = html_text + \
-							"<strong>From</strong> " + m["uco-observable:from"] + "<br/>" + \
-							"<strong>To</strong> " + m["uco-observable:to"] + "<br/>" + \
-							"<strong>Message</strong><br/>" + m["uco-observable:messageText"] + '<hr/>'
+				html_text = self.gather_all_chats()
 				self.textEdit.setHtml(html_text)
 			elif "Accounts " in self.tree_cyber_item:
-				html_text="<h2>Accounts data</h2><br/>"
-				for a in accounts:
-					html_text = html_text + \
-					"<strong>Identifier</strong> " + a["uco-observable:accountIdentifier"] + "<br/>" + \
-					"<strong>Phone number</strong> " + a["uco-observable:phoneAccount"] + "<br/>" + \
-					"<strong>Application</strong> " + a["uco-observable:application"] + "<br/>" + \
-					"<strong>Display name</strong> " + a["uco-observable:displayName"] + "<hr/>"
+				html_text = self.gather_all_accounts()
 				self.textEdit.setHtml(html_text)
 			elif "Calls " in self.tree_cyber_item:
-				html_text="<h2>Calls data</h2><br/>"
-				for a in phoneCalls:
-					html_text = html_text + \
-					"<strong>From</strong> " + a["uco-observable:to"] + "<br/>" + \
-					"<strong>To</strong> " + a["uco-observable:to"] + "<br/>" + \
-					"<strong>Name</strong> " + a["uco-core:name"] + "<br/>" + \
-					"<strong>Start time</strong> " + a["uco-observable:startTime"] + "<br/>" + \
-					"<strong>Duration (s.)</strong> " + a["uco-observable:duration"] + "<hr/>"
+				html_text = self.gater_all_calls()
+				self.textEdit.setHtml(html_text)
+			elif "Cookies " in self.tree_cyber_item:
+				html_text = self.gather_all_cookies()
 				self.textEdit.setHtml(html_text)
 
 		self.model = TableModel(self.tableData)
-
 		self.table.setModel(self.model)
 
-		#self.table.resizeRowsToContents();
-
-		#self.table.resizeColumnsToContents()
 
 	def select_main_panel(self, item):
 		#text = index.data(Qt.DisplayRole)
@@ -646,13 +621,10 @@ class view(QWidget):
 				"<strong>To</strong> " + chatMessages[row]["uco-observable:to"] + "<br/>" + \
 				"<strong>Message</strong><br/>" + chatMessages[row]["uco-observable:messageText"] + '<hr/>'
 				self.textEdit.setHtml('<h2>Chat message</h2>' + chat_value)
-			elif "Cookies" in self.tree_cyber_item:
-				cookie_value = cookies[row]["uco-observable:cookiePath"]
-				self.textEdit.setHtml('<h2>Cookie value</h2>' + cookie_value)
 			elif "Accounts " in self.tree_cyber_item:
 				name = accounts[row]["uco-observable:displayName"]
 				identifier = accounts[row]["uco-observable:accountIdentifier"]
-				self.textEdit.setHtml('<h2>Account name</h2>' + name + "<br/>" +
+				self.textEdit.setHtml('<h2>Account name</h2>' + name + "<br/>" + \
 					"<h2>Identifier</h2>" + identifier)
 			elif "Calls" in self.tree_cyber_item:
 				call_value = "<strong>From</strong> " + phoneCalls[row]["uco-observable:from"] + "<br/>" + \
@@ -661,9 +633,63 @@ class view(QWidget):
 				"<strong>Start time</strong> " + phoneCalls[row]["uco-observable:startTime"] + "<br/>" + \
 				"<strong>Duration (s.)</strong> " + phoneCalls[row]["uco-observable:duration"]
 				self.textEdit.setHtml('<h2>Call</h2>' + call_value)
+			elif "Cookies" in self.tree_cyber_item:
+				value = "<strong>Name</strong> " + str(cookies[row]["uco-observable:cookieName"]) + "<br/>" + \
+				"<strong>Path</strong> " + str(cookies[row]["uco-observable:cookiePath"]) + "<br/>" + \
+				"<strong>Application </strong> " + str(cookies[row]["uco-observable:cookieApp"]) + "<br/>" + \
+				"<strong>Crreated time </strong> " + str(cookies[row]["uco-observable:accessedTime"]) + "<br/>" + \
+				"<strong>Expiration time </strong> " + str(cookies[row]["uco-observable:expirationTime"]) + "<hr/>"
+				self.textEdit.setHtml('<h2>Cookies</h2>' + value)
 			else:
 				self.textEdit.setHtml('<h2>Here the details of the cyber item will be displayed</h2>')
 				print("item selected is not an Email")
+
+	def gather_all_chats(self):
+		pos = self.tree_cyber_item.find('(')
+		idx = int((self.tree_cyber_item[7:pos])) - 1
+		html_text="<h2>Chat messages</h2><br/>"
+		for t in chatThreads[idx]['thread:messages']:
+			for m in chatMessages:
+				if m["@id"] == t:
+					html_text = html_text + \
+					"<strong>From</strong> " + m["uco-observable:from"] + "<br/>" + \
+					"<strong>To</strong> " + m["uco-observable:to"] + "<br/>" + \
+					"<strong>Message</strong><br/>" + m["uco-observable:messageText"] + '<hr/>'
+		return html_text
+
+	def gather_all_accounts(self):
+		html_text="<h2>Accounts data</h2><br/>"
+		for a in accounts:
+			html_text = html_text + \
+			"<strong>Identifier</strong> " + a["uco-observable:accountIdentifier"] + "<br/>" + \
+			"<strong>Phone number</strong> " + a["uco-observable:phoneAccount"] + "<br/>" + \
+			"<strong>Application</strong> " + a["uco-observable:application"] + "<br/>" + \
+			"<strong>Display name</strong> " + a["uco-observable:displayName"] + "<hr/>"
+		return html_text
+
+	def gather_all_calls(self):
+		html_text="<h2>Calls data</h2><br/>"
+		for a in phoneCalls:
+			html_text = html_text + \
+			"<strong>From</strong> " + a["uco-observable:to"] + "<br/>" + \
+			"<strong>To</strong> " + a["uco-observable:to"] + "<br/>" + \
+			"<strong>Name</strong> " + a["uco-core:name"] + "<br/>" + \
+			"<strong>Start time</strong> " + a["uco-observable:startTime"] + "<br/>" + \
+			"<strong>Duration (s.)</strong> " + a["uco-observable:duration"] + "<hr/>"
+		return html_text
+
+	def gather_all_cookies(self):
+		html_text="<h2>Cookies data</h2><br/>"
+		for item in cookies:
+			html_text = html_text + \
+			"<strong>Name</strong> " + str(item["uco-observable:cookieName"]) + "<br/>" + \
+			"<strong>Path</strong> " + str(item["uco-observable:cookiePath"]) + "<br/>" + \
+			"<strong>Application </strong> " + str(item["uco-observable:cookieApp"]) + "<br/>" + \
+			"<strong>Crreated time </strong> " + str(item["uco-observable:accessedTime"]) + "<br/>" + \
+			"<strong>Expiration time </strong> " + str(item["uco-observable:expirationTime"]) + "<hr/>"
+		return html_text
+
+	
 
 def get_attribute(data, property, default_value):
 	return data.get(property) or default_value
@@ -1087,6 +1113,14 @@ def processWirelessNetwork(jsonObj, facet):
 		print (e)
 
 def processCookie(uuid_object=None, facet=None):
+	cookieAppId = get_attribute(facet, "uco-observable:application", None)
+	cookieApp = "-"
+	if cookieAppId:
+		cookieAppId = cookieAppId["@id"]
+		for a in applications:
+			if a["@id"] == cookieAppId:
+				cookieApp = a["uco-core:name"]
+
 	cookieName = get_attribute(facet, "uco-observable:cookieName", None)
 	cookiePath = get_attribute(facet, "uco-observable:cookiePath", None)
 	cookieCreatedTime = get_attribute(facet, "uco-observable:observableCreatedTime", None)
@@ -1105,6 +1139,7 @@ def processCookie(uuid_object=None, facet=None):
 		cookies.append(
 			{
 				"@id":uuid_object,
+				"uco-observable:cookieApp": cookieApp,
 				"uco-observable:cookieName": cookieName,
 				"uco-observable:cookiePath": cookiePath,
 				"uco-observable:observableCreatedTime": cookieCreatedTime,
@@ -1192,7 +1227,7 @@ def processCall(uuid_object=None, facet=None):
 	callDuration = get_attribute(facet, "uco-observable:duration", "-")
 	if callDuration != "-":
 		callDuration = facet["uco-observable:duration"]["@value"]
-	callStatus = get_attribute(facet, "uco-observable:allocationStatus", "-")
+	#callStatus = get_attribute(facet, "uco-observable:allocationStatus", "-")
 	try:
 		phoneCalls.append(
 			{
