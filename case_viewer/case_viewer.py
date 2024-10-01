@@ -541,13 +541,13 @@ class view(QWidget):
 
 
 		if idObject == ':LocationDevice':
-			self.headers = ["Start date", "Latitude", "Longitude"]
+			self.headers = ["Latitude", "Longitude", "Start date"]
 			for l in relationMappedBy:
 				lDate = l["uco-observable:mappedByStartDate"]
 				lLat = l["uco-observable:mappedByLatitude"]
 				lLong = l["uco-observable:mappedByLongitude"]
 
-				tData.append([lDate, lLat, lLong])
+				tData.append([lLat, lLong, lDate])
 
 		return tData
 
@@ -584,6 +584,9 @@ class view(QWidget):
 				self.textEdit.setHtml(html_text)
 			elif "Events " in self.tree_cyber_item:
 				html_text = self.gather_all_events()
+				self.textEdit.setHtml(html_text)
+			elif "Location device " in self.tree_cyber_item:
+				html_text = self.gather_all_locations()
 				self.textEdit.setHtml(html_text)
 			elif file_type in ("Images", "Audios", "Videos", 
 					"Texts", "Archives", "Databases", "Applications", "Uncategorized"):	
@@ -689,7 +692,13 @@ class view(QWidget):
 			elif "Uncategorized" in self.tree_cyber_item:
 				row = filesUncategorized[row]
 				detail = self.gather_data_file(row)
-				self.textEdit.setHtml('<h2>Uncategorized</h2>' + detail)			
+				self.textEdit.setHtml('<h2>Uncategorized</h2>' + detail)
+			elif "Location device" in self.tree_cyber_item:
+				row =relationMappedBy[row]
+				detail = "<strong>Start date</strong> " + str(row["uco-observable:mappedByStartDate"]) + "<br/>" + \
+				"<strong>Latitude</strong> " + str(row["uco-observable:mappedByLatitude"]) + "<br/>" + \
+				"<strong>Longitude</strong> " + str(row["uco-observable:mappedByLongitude"]) + "<hr/>"
+				self.textEdit.setHtml('<h2>Location device</h2>' + detail)
 			else:
 				self.textEdit.setHtml('<h2>Here the details of the cyber item will be displayed</h2>')
 				print("item selected is not an Email")
@@ -701,10 +710,9 @@ class view(QWidget):
 		for t in chatThreads[idx]['thread:messages']:
 			for m in chatMessages:
 				if m["@id"] == t:
-					html_text = html_text + \
-					"<strong>From</strong> " + m["uco-observable:from"] + "<br/>" + \
+					html_text = html_text + "<strong>From</strong> " + m["uco-observable:from"] + "<br/>" + \
 					"<strong>To</strong> " + m["uco-observable:to"] + "<br/>" + \
-					"<strong>Message</strong><br/>" + m["uco-observable:messageText"] + '<hr/>'
+					"<strong>Message</strong><br/>" + m["uco-observable:messageText"] + "<hr/>"
 		return html_text
 
 	def gather_all_accounts(self):
@@ -746,7 +754,7 @@ class view(QWidget):
 			"<strong>Tipo</strong> " + str(item["uco-observable:eventType"]) + "<br/>" + \
 			"<strong>Text</strong> " + str(item["uco-observable:eventText"]) + "<br/>" + \
 			"<strong>Created time</strong> " + str(item["uco-observable:observableCreatedTime"]) + "<hr/>"
-		return html_text
+		return html_text	
 
 
 	def gather_all_files(self, type, arrayFiles):
@@ -756,6 +764,15 @@ class view(QWidget):
 			"<strong>Name</strong> " + str(item["uco-observable:fileName"]) + "<br/>" + \
 			"<strong>Path</strong> " + str(item["uco-observable:filePath"]) + "<br/>" + \
 			"<strong>Size</strong> " + str(item["uco-observable:fileSize"]) + "<hr/>"
+		return html_text
+
+	def gather_all_locations(self):
+		html_text="<h2>Location device data</h2><br/>"
+		for item in relationMappedBy:
+			html_text = html_text + \
+			"<strong>Start date</strong> " + str(item["uco-observable:mappedByStartDate"]) + "<br/>" + \
+			"<strong>Latitude</strong> " + str(item["uco-observable:mappedByLatitude"]) + "<br/>" + \
+			"<strong>Longitude</strong> " + str(item["uco-observable:mappedByLongitude"]) + "<hr/>"
 		return html_text
 
 	def gather_data_file(self, row):
