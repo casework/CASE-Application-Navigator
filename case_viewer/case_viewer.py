@@ -393,115 +393,96 @@ class view(QWidget):
 	def buildDataFiles(self, idObject):
 
 		tData = []
+		self.headers = ["Name", "Path", "Size"]
 		
 		if idObject == ':Images':
-			self.headers = ["Type", "Name", "Path", "Size"]
 			for f in filesImage:
-				fileType = f["uco-core:tag"]
+				#fileType = f["uco-core:tag"]
 				fileName = f["uco-observable:fileName"]
 				filePath = f["uco-observable:filePath"]
 				fileSize = f["uco-observable:fileSize"]
-				tData.append([fileType, fileName, filePath, fileSize])
+				tData.append([fileName, filePath, fileSize])
 
 		if idObject == ':Texts':
-			self.headers = ["Type", "Name", "Path", "Size"]
 			for f in filesText:
-				fileType = f["uco-core:tag"]
+				#fileType = f["uco-core:tag"]
 				fileName = f["uco-observable:fileName"]
 				filePath = f["uco-observable:filePath"]
 				fileSize = f["uco-observable:fileSize"]
-
-				tData.append([fileType, fileName, filePath, fileSize])
+				tData.append([fileName, filePath, fileSize])
 
 		if idObject == ':PDFs':
-			self.headers = ["Type", "Name", "Path", "Size"]
 			for f in filesPDF:
-				fileType = f["uco-core:tag"]
+				#fileType = f["uco-core:tag"]
 				fileName = f["uco-observable:fileName"]
 				filePath = f["uco-observable:filePath"]
 				fileSize = f["uco-observable:fileSize"]
 
-				tData.append([fileType, fileName, filePath, fileSize])
+				tData.append([fileName, filePath, fileSize])
 
 		if idObject == ':Words':
-			self.headers = ["Type", "Name", "Path", "Size"]
 			for f in filesWord:
-				fileType = f["uco-core:tag"]
+				#fileType = f["uco-core:tag"]
 				fileName = f["uco-observable:fileName"]
 				filePath = f["uco-observable:filePath"]
 				fileSize = f["uco-observable:fileSize"]
-
-				tData.append([fileType, fileName, filePath, fileSize])
+				tData.append([fileName, filePath, fileSize])
 
 		if idObject == ':RTFs':
-			self.headers = ["Type", "Name", "Path", "Size"]
 			for f in filesRTF:
-				fileType = f["uco-core:tag"]
+				#fileType = f["uco-core:tag"]
 				fileName = f["uco-observable:fileName"]
 				filePath = f["uco-observable:filePath"]
 				fileSize = f["uco-observable:fileSize"]
-
-				tData.append([fileType, fileName, filePath, fileSize])
+				tData.append([fileName, filePath, fileSize])
 
 		if idObject == ':Audios':
-			self.headers = ["Type", "Name", "Path", "Size"]
 			for f in filesAudio:
-				fileType = f["uco-core:tag"]
+				#fileType = f["uco-core:tag"]
 				fileName = f["uco-observable:fileName"]
 				filePath = f["uco-observable:filePath"]
 				fileSize = f["uco-observable:fileSize"]
-
-				tData.append([fileType, fileName, filePath, fileSize])
+				tData.append([fileName, filePath, fileSize])
 
 		if idObject == ':Videos':
-			self.headers = ["Type", "Name", "Path", "Size"]
 			for f in filesVideo:
-				fileType = f["uco-core:tag"]
+				#fileType = f["uco-core:tag"]
 				fileName = f["uco-observable:fileName"]
 				filePath = f["uco-observable:filePath"]
 				fileSize = f["uco-observable:fileSize"]
-
-				tData.append([fileType, fileName, filePath, fileSize])
+				tData.append([fileName, filePath, fileSize])
 
 		if idObject == ':Archives':
-			self.headers = ["Type", "Name", "Path", "Size"]
 			for f in filesArchive:
-				fileType = f["uco-core:tag"]
+				#fileType = f["uco-core:tag"]
 				fileName = f["uco-observable:fileName"]
 				filePath = f["uco-observable:filePath"]
 				fileSize = f["uco-observable:fileSize"]
-
-				tData.append([fileType, fileName, filePath, fileSize])
+				tData.append([fileName, filePath, fileSize])
 
 		if idObject == ':Databases':
-			self.headers = ["Type", "Name", "Path", "Size"]
 			for f in filesDatabase:
-				fileType = f["uco-core:tag"]
+				#fileType = f["uco-core:tag"]
 				fileName = f["uco-observable:fileName"]
 				filePath = f["uco-observable:filePath"]
 				fileSize = f["uco-observable:fileSize"]
-
-				tData.append([fileType, fileName, filePath, fileSize])
+				tData.append([fileName, filePath, fileSize])
 
 		if idObject == ':Applications':
-			self.headers = ["Type", "Name", "Path", "Size"]
 			for f in filesApplication:
-				fileType = f["uco-core:tag"]
+				#fileType = f["uco-core:tag"]
 				fileName = f["uco-observable:fileName"]
 				filePath = f["uco-observable:filePath"]
 				fileSize = f["uco-observable:fileSize"]
+				tData.append([fileName, filePath, fileSize])
 
-				tData.append([fileType, fileName, filePath, fileSize])
-
-		if idObject == ':Uncategorized':
-			self.headers = ["Type", "Name", "Path", "Size"]
+		if idObject == ':Uncategorized':			
 			for f in filesUncategorized:
-				fileType = f["uco-core:tag"]
+				#fileType = f["uco-core:tag"]
 				fileName = f["uco-observable:fileName"]
 				filePath = f["uco-observable:filePath"]
 				fileSize = f["uco-observable:fileSize"]
-
-				tData.append([fileType, fileName, filePath, fileSize])
+				tData.append([fileName, filePath, fileSize])
 
 		return tData
 
@@ -574,13 +555,11 @@ class view(QWidget):
 	def select_left_bar(self, index):
 		text = index.data(Qt.DisplayRole)
 		threadId = ''
-
 		for i, dic in enumerate(treeData):
 			if dic['short_name'] == text:
 				#print('text: ' + text + ', selected thread id: ' + str(treeData[i]['unique_id']))
 				threadId = treeData[i]['unique_id']
 				break
-
 		if threadId == '':
 			print('Thread id not found')
 			self.tree_cyber_item = ''
@@ -589,6 +568,7 @@ class view(QWidget):
 			self.tableData = self.buildTableData(threadId)
 			self.tableData.insert(0, self.headers)
 			print(f"self.tree_cyber_item={self.tree_cyber_item}")
+			file_type = self.tree_cyber_item.split()[0]
 			html_text = ""
 			if "chat N." in self.tree_cyber_item:
 				html_text = self.gather_all_chats()
@@ -605,6 +585,26 @@ class view(QWidget):
 			elif "Events " in self.tree_cyber_item:
 				html_text = self.gather_all_events()
 				self.textEdit.setHtml(html_text)
+			elif file_type in ("Images", "Audios", "Videos", 
+					"Texts", "Archives", "Databases", "Applications", "Uncategorized"):	
+					print(f"Here you are! [{self.tree_cyber_item}]")
+					if file_type == "Images":
+						html_text = self.gather_all_files(file_type, filesImage)
+					elif file_type == "Audios":
+						html_text = self.gather_all_files(file_type, filesAudio)
+					elif file_type == "Videos":
+						html_text = self.gather_all_files(file_type, filesVideo)
+					elif file_type == "Texts":
+						html_text = self.gather_all_files(file_type, filesText)
+					elif file_type == "Archives":
+						html_text = self.gather_all_files(file_type, filesArchive)
+					elif file_type == "Databases":
+						html_text = self.gather_all_files(file_type, filesDatabase)
+					elif file_type == "Applications":
+						html_text = self.gather_all_files(file_type, filesApplication)
+					elif file_type == "Uncategorized":
+						html_text = self.gather_all_files(file_type, filesUncategorized)
+					self.textEdit.setHtml(html_text)
 
 		self.model = TableModel(self.tableData)
 		self.table.setModel(self.model)
@@ -616,47 +616,80 @@ class view(QWidget):
 		if item.row():
 			row = int(item.row() - 1)
 			if 'Email' in self.tree_cyber_item:
-				m = emailMessages[row]
-				detail = "<strong>From</strong> " + str(m["uco-observable:from"]) + "<br/>" + \
-				"<strong>To</strong> " + str(m["uco-observable:to"]) + "<br/>" + \
-				"<strong>Cc </strong> " + str(m["uco-observable:cc"]) + "<br/>" + \
-				"<strong>Bcc </strong> " + str(m["uco-observable:bcc"]) + "<br/>" + \
-				"<strong>Subject</strong> " + str(m["uco-observable:subject"]) + "<br/>" + \
-				"<strong>Sent time</strong> " + str(m["uco-observable:sentTime"]) + "<br/>" + \
-				"<strong>Body</strong> " + str(m["uco-observable:body"]) + "<hr/>"
+				row = emailMessages[row]
+				detail = "<strong>From</strong> " + str(row["uco-observable:from"]) + "<br/>" + \
+				"<strong>To</strong> " + str(row["uco-observable:to"]) + "<br/>" + \
+				"<strong>Cc </strong> " + str(row["uco-observable:cc"]) + "<br/>" + \
+				"<strong>Bcc </strong> " + str(row["uco-observable:bcc"]) + "<br/>" + \
+				"<strong>Subject</strong> " + str(row["uco-observable:subject"]) + "<br/>" + \
+				"<strong>Sent time</strong> " + str(row["uco-observable:sentTime"]) + "<br/>" + \
+				"<strong>Body</strong> " + str(row["uco-observable:body"]) + "<hr/>"
 				self.textEdit.setHtml('<h2>Email</h2>' + detail)
 			elif "chat N." in self.tree_cyber_item:
-				m = chatMessages[row]
-				detail = "<strong>From</strong> " + m["uco-observable:from"] + "<br/>" + \
-				"<strong>To</strong> " + chatMessages[row]["uco-observable:to"] + "<br/>" + \
-				"<strong>Message</strong><br/>" + m["uco-observable:messageText"] + '<hr/>'
+				row = chatMessages[row]
+				detail = "<strong>From</strong> " + row["uco-observable:from"] + "<br/>" + \
+				"<strong>To</strong> " + row["uco-observable:to"] + "<br/>" + \
+				"<strong>Message</strong><br/>" + row["uco-observable:messageText"] + '<hr/>'
 				self.textEdit.setHtml('<h2>Chat message</h2>' + detail)
 			elif "Accounts " in self.tree_cyber_item:
-				detail = "<strong>Name</strong> " + accounts[row]["uco-observable:displayName"] + "<br/>" + \
-				"<strong>Identifier</strong> " + accounts[row]["uco-observable:accountIdentifier"]
+				row = accounts[row]
+				detail = "<strong>Name</strong> " + row["uco-observable:displayName"] + "<br/>" + \
+				"<strong>Identifier</strong> " + row["uco-observable:accountIdentifier"]
 				self.textEdit.setHtml('<h2>Account</h2>' + detail)
 			elif "Calls" in self.tree_cyber_item:
-				c = phoneCalls[row]
-				detail = "<strong>From</strong> " + c["uco-observable:from"] + "<br/>" + \
-				"<strong>To</strong> " + c["uco-observable:to"] + "<br/>" + \
-				"<strong>Name</strong> " + c["uco-core:name"] + "<br/>" + \
-				"<strong>Start time</strong> " + c["uco-observable:startTime"] + "<br/>" + \
-				"<strong>Duration (s.)</strong> " + c[row]["uco-observable:duration"]
+				row = phoneCalls[row]
+				detail = "<strong>From</strong> " + row["uco-observable:from"] + "<br/>" + \
+				"<strong>To</strong> " + row["uco-observable:to"] + "<br/>" + \
+				"<strong>Name</strong> " + row["uco-core:name"] + "<br/>" + \
+				"<strong>Start time</strong> " + row["uco-observable:startTime"] + "<br/>" + \
+				"<strong>Duration (s.)</strong> " + row["uco-observable:duration"]
 				self.textEdit.setHtml('<h2>Call</h2>' + detail)
 			elif "Cookies" in self.tree_cyber_item:
-				c = cookies[row]
-				detail = "<strong>Name</strong> " + str(c["uco-observable:cookieName"]) + "<br/>" + \
-				"<strong>Path</strong> " + str(c["uco-observable:cookiePath"]) + "<br/>" + \
-				"<strong>Application </strong> " + str(c["uco-observable:cookieApp"]) + "<br/>" + \
-				"<strong>Crreated time </strong> " + str(c["uco-observable:accessedTime"]) + "<br/>" + \
-				"<strong>Expiration time </strong> " + str(c["uco-observable:expirationTime"]) + "<hr/>"
+				row= cookies[row]
+				detail = "<strong>Name</strong> " + str(row["uco-observable:cookieName"]) + "<br/>" + \
+				"<strong>Path</strong> " + str(row["uco-observable:cookiePath"]) + "<br/>" + \
+				"<strong>Application </strong> " + str(row["uco-observable:cookieApp"]) + "<br/>" + \
+				"<strong>Crreated time </strong> " + str(row["uco-observable:accessedTime"]) + "<br/>" + \
+				"<strong>Expiration time </strong> " + str(row["uco-observable:expirationTime"]) + "<hr/>"
 				self.textEdit.setHtml('<h2>Cookies</h2>' + detail)
 			elif "Events" in self.tree_cyber_item:
-				e = events[row]
-				detail = "<strong>Type</strong> " + str(e["uco-observable:eventType"]) + "<br/>" + \
-				"<strong>Text</strong> " + str(e["uco-observable:eventText"]) + "<br/>" + \
-				"<strong>Created time</strong> " + str(e["uco-observable:observableCreatedTime"]) + "<hr/>"
+				row = events[row]
+				detail = "<strong>Type</strong> " + str(row["uco-observable:eventType"]) + "<br/>" + \
+				"<strong>Text</strong> " + str(row["uco-observable:eventText"]) + "<br/>" + \
+				"<strong>Created time</strong> " + str(row["uco-observable:observableCreatedTime"]) + "<hr/>"
 				self.textEdit.setHtml('<h2>Events</h2>' + detail)
+			elif "Images" in self.tree_cyber_item:
+				row = filesImage[row]
+				detail = self.gather_data_file(row)
+				self.textEdit.setHtml('<h2>Image</h2>' + detail)
+			elif "Audios" in self.tree_cyber_item:
+				row = filesAudio[row]
+				detail = self.gather_data_file(row)
+				self.textEdit.setHtml('<h2>Audio</h2>' + detail)
+			elif "Texts" in self.tree_cyber_item:
+				row = filesText[row]
+				detail = self.gather_data_file(row)
+				self.textEdit.setHtml('<h2>Text</h2>' + detail)
+			elif "Videos" in self.tree_cyber_item:
+				row = filesVideo[row]
+				detail = self.gather_data_file(row)
+				self.textEdit.setHtml('<h2>Video</h2>' + detail)
+			elif "Archives" in self.tree_cyber_item:
+				row = filesArchive[row]
+				detail = self.gather_data_file(row)
+				self.textEdit.setHtml('<h2>Archive</h2>' + detail)
+			elif "Databases" in self.tree_cyber_item:
+				row = filesDatabase[row]
+				detail = self.gather_data_file(row)
+				self.textEdit.setHtml('<h2>Database</h2>' + detail)
+			elif "Applications" in self.tree_cyber_item:
+				row = filesApplication[row]
+				detail = self.gather_data_file(row)
+				self.textEdit.setHtml('<h2>Application</h2>' + detail)
+			elif "Uncategorized" in self.tree_cyber_item:
+				row = filesUncategorized[row]
+				detail = self.gather_data_file(row)
+				self.textEdit.setHtml('<h2>Uncategorized</h2>' + detail)			
 			else:
 				self.textEdit.setHtml('<h2>Here the details of the cyber item will be displayed</h2>')
 				print("item selected is not an Email")
@@ -716,8 +749,25 @@ class view(QWidget):
 		return html_text
 
 
+	def gather_all_files(self, type, arrayFiles):
+		html_text="<h2>" + type + " data</h2><br/>"
+		for item in arrayFiles:
+			html_text = html_text + \
+			"<strong>Name</strong> " + str(item["uco-observable:fileName"]) + "<br/>" + \
+			"<strong>Path</strong> " + str(item["uco-observable:filePath"]) + "<br/>" + \
+			"<strong>Size</strong> " + str(item["uco-observable:fileSize"]) + "<hr/>"
+		return html_text
+
+	def gather_data_file(self, row):
+		detail = "<strong>Name</strong> " + str(row["uco-observable:fileName"]) + "<br/>" + \
+		"<strong>Path</strong> " + str(row["uco-observable:filePath"]) + "<br/>" + \
+		"<strong>Size</strong> " + str(row["uco-observable:fileSize"]) + "<hr/>"
+		return(detail)
+
+
 def get_attribute(data, property, default_value):
 	return data.get(property) or default_value
+
 
 def processAttachments():
 	for item in chatMessages:
