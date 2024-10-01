@@ -602,6 +602,9 @@ class view(QWidget):
 			elif "Cookies " in self.tree_cyber_item:
 				html_text = self.gather_all_cookies()
 				self.textEdit.setHtml(html_text)
+			elif "Events " in self.tree_cyber_item:
+				html_text = self.gather_all_events()
+				self.textEdit.setHtml(html_text)
 
 		self.model = TableModel(self.tableData)
 		self.table.setModel(self.model)
@@ -648,6 +651,12 @@ class view(QWidget):
 				"<strong>Crreated time </strong> " + str(c["uco-observable:accessedTime"]) + "<br/>" + \
 				"<strong>Expiration time </strong> " + str(c["uco-observable:expirationTime"]) + "<hr/>"
 				self.textEdit.setHtml('<h2>Cookies</h2>' + detail)
+			elif "Events" in self.tree_cyber_item:
+				e = events[row]
+				detail = "<strong>Type</strong> " + str(e["uco-observable:eventType"]) + "<br/>" + \
+				"<strong>Text</strong> " + str(e["uco-observable:eventText"]) + "<br/>" + \
+				"<strong>Created time</strong> " + str(e["uco-observable:observableCreatedTime"]) + "<hr/>"
+				self.textEdit.setHtml('<h2>Events</h2>' + detail)
 			else:
 				self.textEdit.setHtml('<h2>Here the details of the cyber item will be displayed</h2>')
 				print("item selected is not an Email")
@@ -697,7 +706,15 @@ class view(QWidget):
 			"<strong>Expiration time </strong> " + str(item["uco-observable:expirationTime"]) + "<hr/>"
 		return html_text
 
-	
+	def gather_all_events(self):
+		html_text="<h2>Events data</h2><br/>"
+		for item in events:
+			html_text = html_text + \
+			"<strong>Tipo</strong> " + str(item["uco-observable:eventType"]) + "<br/>" + \
+			"<strong>Text</strong> " + str(item["uco-observable:eventText"]) + "<br/>" + \
+			"<strong>Created time</strong> " + str(item["uco-observable:observableCreatedTime"]) + "<hr/>"
+		return html_text
+
 
 def get_attribute(data, property, default_value):
 	return data.get(property) or default_value
