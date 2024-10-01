@@ -378,15 +378,15 @@ class view(QWidget):
 		tData = []
 
 		if idObject == ':EmailMessages':
-			self.headers = ["From", "To", "Date", "Subject", "Body", "Status"]
+			self.headers = ["From", "To", "Date", "Subject"]
 			for e in emailMessages:
 				emailSubject = e["uco-observable:subject"]
-				emailBody = e["uco-observable:body"]
+				#emailBody = e["uco-observable:body"]
 				emailDate = e["uco-observable:sentTime"]
-				emailStatus = e["uco-observable:allocationStatus"]
+				#emailStatus = e["uco-observable:allocationStatus"]
 				emailFrom = e["uco-observable:from"]
 				emailTo = e["uco-observable:to"]
-				tData.append([emailFrom, emailTo, emailDate, emailSubject, emailBody, emailStatus])
+				tData.append([emailFrom, emailTo, emailDate, emailSubject])
 
 		return tData
 
@@ -613,33 +613,41 @@ class view(QWidget):
 		if item.row():
 			row = int(item.row() - 1)
 			if 'Email' in self.tree_cyber_item:
-				body = emailMessages[row]["uco-observable:body"]
-				print(f"body={body}, self.tree_cyber_item={self.tree_cyber_item}")
-				self.textEdit.setHtml('<h2>Message body</h2>' + body)
+				m = emailMessages[row]
+				detail = "<strong>From</strong> " + str(m["uco-observable:from"]) + "<br/>" + \
+				"<strong>To</strong> " + str(m["uco-observable:to"]) + "<br/>" + \
+				"<strong>Cc </strong> " + str(m["uco-observable:cc"]) + "<br/>" + \
+				"<strong>Bcc </strong> " + str(m["uco-observable:bcc"]) + "<br/>" + \
+				"<strong>Subject</strong> " + str(m["uco-observable:subject"]) + "<br/>" + \
+				"<strong>Sent time</strong> " + str(m["uco-observable:sentTime"]) + "<br/>" + \
+				"<strong>Body</strong> " + str(m["uco-observable:body"]) + "<hr/>"
+				self.textEdit.setHtml('<h2>Email</h2>' + detail)
 			elif "chat N." in self.tree_cyber_item:
-				chat_value = "<strong>From</strong> " + chatMessages[row]["uco-observable:from"] + "<br/>" + \
+				m = chatMessages[row]
+				detail = "<strong>From</strong> " + m["uco-observable:from"] + "<br/>" + \
 				"<strong>To</strong> " + chatMessages[row]["uco-observable:to"] + "<br/>" + \
-				"<strong>Message</strong><br/>" + chatMessages[row]["uco-observable:messageText"] + '<hr/>'
-				self.textEdit.setHtml('<h2>Chat message</h2>' + chat_value)
+				"<strong>Message</strong><br/>" + m["uco-observable:messageText"] + '<hr/>'
+				self.textEdit.setHtml('<h2>Chat message</h2>' + detail)
 			elif "Accounts " in self.tree_cyber_item:
-				name = accounts[row]["uco-observable:displayName"]
-				identifier = accounts[row]["uco-observable:accountIdentifier"]
-				self.textEdit.setHtml('<h2>Account name</h2>' + name + "<br/>" + \
-					"<h2>Identifier</h2>" + identifier)
+				detail = "<strong>Name</strong> " + accounts[row]["uco-observable:displayName"] + "<br/>" + \
+				"<strong>Identifier</strong> " + accounts[row]["uco-observable:accountIdentifier"]
+				self.textEdit.setHtml('<h2>Account</h2>' + detail)
 			elif "Calls" in self.tree_cyber_item:
-				call_value = "<strong>From</strong> " + phoneCalls[row]["uco-observable:from"] + "<br/>" + \
-				"<strong>To</strong> " + phoneCalls[row]["uco-observable:to"] + "<br/>" + \
-				"<strong>Name</strong> " + phoneCalls[row]["uco-core:name"] + "<br/>" + \
-				"<strong>Start time</strong> " + phoneCalls[row]["uco-observable:startTime"] + "<br/>" + \
-				"<strong>Duration (s.)</strong> " + phoneCalls[row]["uco-observable:duration"]
-				self.textEdit.setHtml('<h2>Call</h2>' + call_value)
+				c = phoneCalls[row]
+				detail = "<strong>From</strong> " + c["uco-observable:from"] + "<br/>" + \
+				"<strong>To</strong> " + c["uco-observable:to"] + "<br/>" + \
+				"<strong>Name</strong> " + c["uco-core:name"] + "<br/>" + \
+				"<strong>Start time</strong> " + c["uco-observable:startTime"] + "<br/>" + \
+				"<strong>Duration (s.)</strong> " + c[row]["uco-observable:duration"]
+				self.textEdit.setHtml('<h2>Call</h2>' + detail)
 			elif "Cookies" in self.tree_cyber_item:
-				value = "<strong>Name</strong> " + str(cookies[row]["uco-observable:cookieName"]) + "<br/>" + \
-				"<strong>Path</strong> " + str(cookies[row]["uco-observable:cookiePath"]) + "<br/>" + \
-				"<strong>Application </strong> " + str(cookies[row]["uco-observable:cookieApp"]) + "<br/>" + \
-				"<strong>Crreated time </strong> " + str(cookies[row]["uco-observable:accessedTime"]) + "<br/>" + \
-				"<strong>Expiration time </strong> " + str(cookies[row]["uco-observable:expirationTime"]) + "<hr/>"
-				self.textEdit.setHtml('<h2>Cookies</h2>' + value)
+				c = cookies[row]
+				detail = "<strong>Name</strong> " + str(c["uco-observable:cookieName"]) + "<br/>" + \
+				"<strong>Path</strong> " + str(c["uco-observable:cookiePath"]) + "<br/>" + \
+				"<strong>Application </strong> " + str(c["uco-observable:cookieApp"]) + "<br/>" + \
+				"<strong>Crreated time </strong> " + str(c["uco-observable:accessedTime"]) + "<br/>" + \
+				"<strong>Expiration time </strong> " + str(c["uco-observable:expirationTime"]) + "<hr/>"
+				self.textEdit.setHtml('<h2>Cookies</h2>' + detail)
 			else:
 				self.textEdit.setHtml('<h2>Here the details of the cyber item will be displayed</h2>')
 				print("item selected is not an Email")
@@ -1295,7 +1303,7 @@ def processEmailMessage(jsonObj, facet):
 	# 	emailBody = emailBody[0:100] + "..."
 
 	emailSubject = get_attribute(facet, "uco-observable:subject", "-")
-	emailStatus = get_attribute(facet, "uco-observable:allocationStatus", "-")
+	#emailStatus = get_attribute(facet, "uco-observable:allocationStatus", "-")
 
 	try:
 		emailMessages.append(
@@ -1308,7 +1316,7 @@ def processEmailMessage(jsonObj, facet):
 			"uco-observable:sentTime":emailSentTime,
 			"uco-observable:body":emailBody,
 			"uco-observable:subject":emailSubject,
-			"uco-observable:allocationStatus":emailStatus,
+			#"uco-observable:allocationStatus":emailStatus,
 			})
 
 	except Exception as e:
