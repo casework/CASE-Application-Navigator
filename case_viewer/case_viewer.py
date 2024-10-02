@@ -507,7 +507,6 @@ class view(QWidget):
 
 	def buildDataWebBookmarks(self, idObject):
 		tData = []
-
 		if idObject == ':WebBookmarks':
 			self.headers = ["Url", "App", "Path", "Crteated date"]
 			for w in webBookmark:
@@ -521,9 +520,8 @@ class view(QWidget):
 
 	def buildDataWebHistories(self, idObject):
 		tData = []
-		#wbeUrl = ''
 		webApp = ''
-
+		print(f"idObject={idObject}")
 		if idObject == ':WebHistories':
 			self.headers = ["Url", "Title", "Last visited", "App"]
 			for w in webURLHistory:
@@ -531,15 +529,12 @@ class view(QWidget):
 				webTitle = w["uco-observable:title"]
 				webLastVisited = w["uco-observable:lastVisited"]
 				webApp = w["uco-observable:browserInformation"]
-
 				tData.append([webUrl, webTitle, webLastVisited, webApp])
 
 		return tData
 
 	def buildDataLocationDevice(self, idObject):
 		tData = []
-
-
 		if idObject == ':LocationDevice':
 			self.headers = ["Latitude", "Longitude", "Start date"]
 			for l in relationMappedBy:
@@ -557,7 +552,7 @@ class view(QWidget):
 		threadId = ''
 		for i, dic in enumerate(treeData):
 			if dic['short_name'] == text:
-				#print('text: ' + text + ', selected thread id: ' + str(treeData[i]['unique_id']))
+				print('text: ' + text + ', selected thread id: ' + str(treeData[i]['unique_id']))
 				threadId = treeData[i]['unique_id']
 				break
 		if threadId == '':
@@ -608,6 +603,9 @@ class view(QWidget):
 					elif file_type == "Uncategorized":
 						html_text = self.gather_all_files(file_type, filesUncategorized)
 					self.textEdit.setHtml(html_text)
+			elif "Web Histories " in self.tree_cyber_item:
+				html_text = self.gather_all_web_histories()
+				self.textEdit.setHtml(html_text)
 
 		self.model = TableModel(self.tableData)
 		self.table.setModel(self.model)
@@ -699,6 +697,14 @@ class view(QWidget):
 				"<strong>Latitude</strong> " + str(row["uco-observable:mappedByLatitude"]) + "<br/>" + \
 				"<strong>Longitude</strong> " + str(row["uco-observable:mappedByLongitude"]) + "<hr/>"
 				self.textEdit.setHtml('<h2>Location device</h2>' + detail)
+			elif "Web Histories" in self.tree_cyber_item:
+				row =webURLHistory[row]
+				print(f"row={row}")
+				detail = "<strong>Url</strong> " + str(row["uco-observable:url"]) + "<br/>" + \
+				"<strong>Title</strong> " + str(row["uco-observable:title"]) + "<br/>" + \
+				"<strong>Browser</strong> " + str(row["uco-observable:browserInformation"]) + "<br/>" + \
+				"<strong>Last visited</strong> " + str(row["uco-observable:lastVisited"]) + "<hr/>"
+				self.textEdit.setHtml('<h2>Web History</h2>' + detail)
 			else:
 				self.textEdit.setHtml('<h2>Here the details of the cyber item will be displayed</h2>')
 				print("item selected is not an Email")
@@ -780,6 +786,16 @@ class view(QWidget):
 		"<strong>Path</strong> " + str(row["uco-observable:filePath"]) + "<br/>" + \
 		"<strong>Size</strong> " + str(row["uco-observable:fileSize"]) + "<hr/>"
 		return(detail)
+
+	def gather_all_web_histories(self):
+		html_text="<h2>Web Histories data</h2><br/>"
+		for item in webURLHistory:
+			html_text = html_text + \
+			"<strong>Url</strong> " + str(item["uco-observable:url"]) + "<br/>" + \
+			"<strong>Title</strong> " + str(item["uco-observable:title"]) + "<br/>" + \
+			"<strong>Browser</strong> " + str(item["uco-observable:browserInformation"]) + "<br/>" + \
+			"<strong>Last visited</strong> " + str(item["uco-observable:lastVisited"]) + "<hr/>"
+		return html_text
 
 
 def get_attribute(data, property, default_value):
@@ -1551,7 +1567,7 @@ def processFile(jsonObj, facet):
 
 
 def processURL(jsonObj, facet):
-	webId = jsonObj["@id"]  
+	webId = jsonObj["@id"]
 	webUrl = facet["uco-observable:fullValue"]
 
 	try:
@@ -1567,7 +1583,7 @@ def processURL(jsonObj, facet):
 
 
 def processWebBookmark(jsonObj, facet):
-	webId = jsonObj["@id"] 
+	webId = jsonObj["@id"]
 	webCreatedTime = ''
 	webApp = ""
 	webUrl = ""
@@ -1584,6 +1600,7 @@ def processWebBookmark(jsonObj, facet):
 
 	webUrlId = get_attribute(facet, "uco-observable:urlTargeted", None)
 	if webUrlId:
+		webUrlId = webUrlId["@id"]
 		for u in webURLs:
 			if u["@id"] == webUrlId:
 				webUrl = u["uco-observable:url"]
@@ -1591,7 +1608,7 @@ def processWebBookmark(jsonObj, facet):
 	else:
 		webUrl = "-"
 
-	webPath = get_attribute(facet, "uco-observable:bookmarkPath", "-")	
+	webPath = get_attribute(facet, "uco-observable:bookmarkPath", "-")
 
 	try:
 		webBookmark.append(
@@ -1608,12 +1625,18 @@ def processWebBookmark(jsonObj, facet):
 		print (e)
 
 def processURLHistory(jsonObj, facet):
-	webId = jsonObj["@id"] 
+	webId = jsonObj["@id"]
 	webLastVisited = ''
 	webTitle = ""
 	webStatus = ""
 	webUrl = ""
 	webApp = ""
+
+	search_term = get_attribute(facet["uco-observable:urlHistoryEntry"][0], "uco-observable:keywordSearchTerm", None)
+	if search_term:
+		print("search term=" + search_term.replace('\\n',''))
+		return	# it's a search term that will be processed later
+
 
 	browserlId = get_attribute(facet, "uco-observable:browserInformation", None)
 	if browserlId:
@@ -1630,19 +1653,18 @@ def processURLHistory(jsonObj, facet):
 
 	lastVisit = get_attribute(facet["uco-observable:urlHistoryEntry"][0], "uco-observable:lastVisit", None)
 	if lastVisit:
-		lastVisit = facet["uco-observable:urlHistoryEntry"][0]["uco-observable:lastVisit"]["@value"]	
+		lastVisit = facet["uco-observable:urlHistoryEntry"][0]["uco-observable:lastVisit"]["@value"]
 
 	webUrlId = get_attribute(facet["uco-observable:urlHistoryEntry"][0], "uco-observable:url", None)
+	webUrl = "-"
 	if webUrlId:
-		webUrlId = facet["uco-observable:urlHistoryEntry"][0]["uco-observable:url"]["@id"]
-
-	webTitle = get_attribute(facet["uco-observable:urlHistoryEntry"][0], "uco-observable:pageTitle", "-")	
-	webStatus = get_attribute(facet["uco-observable:urlHistoryEntry"][0], "uco-observable:allocationStatus", "-")
-
-	if webUrlId: 
+		webUrlId = webUrlId["@id"]
 		for w in webURLs:
 			if w["@id"] == webUrlId:
 				webUrl = w["uco-observable:url"]
+
+	webTitle = get_attribute(facet["uco-observable:urlHistoryEntry"][0], "uco-observable:pageTitle", "-")
+	#webStatus = get_attribute(facet["uco-observable:urlHistoryEntry"][0], "uco-observable:allocationStatus", "-")
 
 	try:
 		webURLHistory.append(
@@ -1652,7 +1674,7 @@ def processURLHistory(jsonObj, facet):
 				"uco-observable:url": webUrl,
 				"uco-observable:title":webTitle,
 				"uco-observable:lastVisited":webLastVisited,
-			"uco-observable:allocationStatus":webStatus
+			#"uco-observable:allocationStatus":webStatus
 			})
 
 	except Exception as e:
@@ -1707,7 +1729,7 @@ if __name__ == '__main__':
 	filesImage = []
 	filesAudio = []
 	filesText = []
-	filesPDF = []  
+	filesPDF = []
 	filesWord = []
 	filesRTF = []
 	filesVideo = []
@@ -1732,8 +1754,8 @@ if __name__ == '__main__':
 		json_obj = json.load(f)
 		app = QApplication([])
 		msgBox = QMessageBox()
-		reply = msgBox.question(None, "CASE syntax check result", 
-								"Syntax check went well! Do you want to continue?", 
+		reply = msgBox.question(None, "CASE syntax check result",
+								"Syntax check went well! Do you want to continue?",
 								QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
 
 		if reply == QMessageBox.No:
@@ -1754,7 +1776,7 @@ if __name__ == '__main__':
 		for jsonObj in json_data:
 			nObjects +=1
 			uuid_object = jsonObj['@id']
-			print(f"{C_GREEN} Observable n. {str(nObjects)} - uuid={uuid_object}", end='\r')
+			#print(f"{C_GREEN} Observable n. {str(nObjects)} - uuid={uuid_object}", end='\r')
 			dataFacets = jsonObj.get("uco-core:hasFacet", None)
 			if not dataFacets:
 				observableType = jsonObj.get("@type", None)
@@ -1839,10 +1861,9 @@ if __name__ == '__main__':
 	i = 1
 	totMessages = 0
 
-	# for a in chatThreads:
-	# 	print(f"@id= {a['@id']}")
-	# 	print(f"length= {a['thread:length']}")
-	# 	print(f"messages= {a['thread:messages']}")
+	# for w in webURLs:
+	# 	print(f"@id= {w['@id']}")
+	# 	print(f"URL= {w['uco-observable:url']}")
 	
 	treeData.insert(0, {'unique_id': ':00000000', 'parent_id': '0', 'short_name': 'Cyber items' })
 
@@ -1899,8 +1920,8 @@ if __name__ == '__main__':
 		eventText = 'Events ' + '(' + number_with_dots(totEvents) + ')'
 		treeData.append({'unique_id': ':Events', 'parent_id': ':00000000', 'short_name': eventText })
 
-	totFiles = (len(filesUncategorized) + len(filesImage) + len(filesArchive) + 
-				len(filesVideo) + len(filesAudio) + + len(filesText) + len(filesDatabase) + 
+	totFiles = (len(filesUncategorized) + len(filesImage) + len(filesArchive) +
+				len(filesVideo) + len(filesAudio) + + len(filesText) + len(filesDatabase) +
 				len(filesApplication) + len(filesPDF) + len(filesWord) + len(filesRTF))
 	fileText = 'Files ' + '(' + number_with_dots(totFiles) + ')'
 	treeData.append({'unique_id': ':Files', 'parent_id': ':00000000', 'short_name': fileText })
