@@ -622,6 +622,9 @@ class view(QWidget):
 			elif "Web Search Terms " in self.tree_cyber_item:
 				html_text = self.gather_all_web_search_terms()
 				self.textEdit.setHtml(html_text)
+			elif "Wireless Net " in self.tree_cyber_item:
+				html_text = self.gather_all_wireless_nets()
+				self.textEdit.setHtml(html_text)
 
 		self.model = TableModel(self.tableData)
 		self.table.setModel(self.model)
@@ -731,6 +734,11 @@ class view(QWidget):
 				row =webSearchTerm[row]
 				detail = "<strong>Web Search Term</strong> " + str(row["uco-observable:searchTerm"]) + "<hr/>"
 				self.textEdit.setHtml('<h2>Web Search Terms</h2>' + detail)
+			elif "Wireless Net" in self.tree_cyber_item:
+				row =wireless_net[row]
+				detail = "<strong>SSID</strong> " + str(row["uco-observable:ssid"]) + "<br/>" + \
+				"<strong>Base Station</strong> " + str(row["uco-observable:baseStation"]) + "<hr/>"
+				self.textEdit.setHtml('<h2>Wireless Network Connection</h2>' + detail)
 			else:
 				self.textEdit.setHtml('<h2>Here the details of the cyber item will be displayed</h2>')
 				print("item selected is not an Email")
@@ -841,7 +849,16 @@ class view(QWidget):
 			"<strong>Search term</strong> " + str(item["uco-observable:searchTerm"]) + "<hr/>"
 		return html_text
 
+	def gather_all_wireless_nets(self):
+		html_text="<h2>Wireless Network connections</h2><br/>"
+		for item in wireless_net:
+			html_text = html_text + \
+			"<strong>SSID</strong> " + str(item["uco-observable:ssid"]) + "<br/>" + \
+			"<strong>Base station</strong> " + str(item["uco-observable:baseStation"]) + "<hr/>"
+		return html_text
 
+
+### global funtions
 def get_attribute(data, property, default_value):
 	return data.get(property) or default_value
 
