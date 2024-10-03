@@ -175,6 +175,8 @@ class view(QWidget):
 		if len(tData) == 0:
 			tData = self.buildDataWebHistories(idObject)
 		if len(tData) == 0:
+			tData = self.buildDataWebSearchTerm(idObject)
+		if len(tData) == 0:
 			tData = self.buildDataLocationDevice(idObject)
 
 		return tData
@@ -521,7 +523,6 @@ class view(QWidget):
 	def buildDataWebHistories(self, idObject):
 		tData = []
 		webApp = ''
-		print(f"idObject={idObject}")
 		if idObject == ':WebHistories':
 			self.headers = ["Url", "Title", "Last visited", "App"]
 			for w in webURLHistory:
@@ -530,8 +531,19 @@ class view(QWidget):
 				webLastVisited = w["uco-observable:lastVisited"]
 				webApp = w["uco-observable:browserInformation"]
 				tData.append([webUrl, webTitle, webLastVisited, webApp])
-
 		return tData
+
+
+	def buildDataWebSearchTerm(self, idObject):
+		tData = []
+		print(f"idObject={idObject}")
+		if idObject == ':WebSearchTerms':
+			self.headers = ["Web search term"]
+			for w in webSearchTerm:
+				webTerm = w["uco-observable:searchTerm"]
+				tData.append([webTerm])
+		return tData
+
 
 	def buildDataLocationDevice(self, idObject):
 		tData = []
@@ -541,9 +553,7 @@ class view(QWidget):
 				lDate = l["uco-observable:mappedByStartDate"]
 				lLat = l["uco-observable:mappedByLatitude"]
 				lLong = l["uco-observable:mappedByLongitude"]
-
 				tData.append([lLat, lLong, lDate])
-
 		return tData
 
 
@@ -605,6 +615,9 @@ class view(QWidget):
 					self.textEdit.setHtml(html_text)
 			elif "Web Histories " in self.tree_cyber_item:
 				html_text = self.gather_all_web_histories()
+				self.textEdit.setHtml(html_text)
+			elif "Web Search Terms " in self.tree_cyber_item:
+				html_text = self.gather_all_web_search_terms()
 				self.textEdit.setHtml(html_text)
 
 		self.model = TableModel(self.tableData)
@@ -699,12 +712,15 @@ class view(QWidget):
 				self.textEdit.setHtml('<h2>Location device</h2>' + detail)
 			elif "Web Histories" in self.tree_cyber_item:
 				row =webURLHistory[row]
-				print(f"row={row}")
 				detail = "<strong>Url</strong> " + str(row["uco-observable:url"]) + "<br/>" + \
 				"<strong>Title</strong> " + str(row["uco-observable:title"]) + "<br/>" + \
 				"<strong>Browser</strong> " + str(row["uco-observable:browserInformation"]) + "<br/>" + \
 				"<strong>Last visited</strong> " + str(row["uco-observable:lastVisited"]) + "<hr/>"
 				self.textEdit.setHtml('<h2>Web History</h2>' + detail)
+			elif "Web Search Terms" in self.tree_cyber_item:
+				row =webSearchTerm[row]
+				detail = "<strong>Web Search Term</strong> " + str(row["uco-observable:searchTerm"]) + "<hr/>"
+				self.textEdit.setHtml('<h2>Web Search Terms</h2>' + detail)
 			else:
 				self.textEdit.setHtml('<h2>Here the details of the cyber item will be displayed</h2>')
 				print("item selected is not an Email")
@@ -795,6 +811,13 @@ class view(QWidget):
 			"<strong>Title</strong> " + str(item["uco-observable:title"]) + "<br/>" + \
 			"<strong>Browser</strong> " + str(item["uco-observable:browserInformation"]) + "<br/>" + \
 			"<strong>Last visited</strong> " + str(item["uco-observable:lastVisited"]) + "<hr/>"
+		return html_text
+
+	def gather_all_web_search_terms(self):
+		html_text="<h2>Web Search Terms data</h2><br/>"
+		for item in webSearchTerm:
+			html_text = html_text + \
+			"<strong>Search term</strong> " + str(item["uco-observable:searchTerm"]) + "<hr/>"
 		return html_text
 
 
@@ -1634,8 +1657,18 @@ def processURLHistory(jsonObj, facet):
 
 	search_term = get_attribute(facet["uco-observable:urlHistoryEntry"][0], "uco-observable:keywordSearchTerm", None)
 	if search_term:
-		print("search term=" + search_term.replace('\\n',''))
-		return	# it's a search term that will be processed later
+		search_term = search_term.replace('\n','').replace('\r', '').replace('\t', ' ')
+		try:
+			webSearchTerm.append(
+				{
+					"@id":webId,
+					"uco-observable:searchTerm":search_term,
+				})
+		except Exception as e:
+			print("ERROR: in appending dictionary to webSearchTerm")
+			print (e)
+			return
+		return
 
 
 	browserlId = get_attribute(facet, "uco-observable:browserInformation", None)
@@ -1738,6 +1771,7 @@ if __name__ == '__main__':
 	filesApplication = []
 	webURLs = []
 	webURLHistory = []
+	webSearchTerm =[]
 	webBookmark = []
 
 #--- Read input file in CASE-JSON format
@@ -1776,7 +1810,7 @@ if __name__ == '__main__':
 		for jsonObj in json_data:
 			nObjects +=1
 			uuid_object = jsonObj['@id']
-			#print(f"{C_GREEN} Observable n. {str(nObjects)} - uuid={uuid_object}", end='\r')
+			print(f"{C_GREEN} Observable n. {str(nObjects)} - uuid={uuid_object}", end='\r')
 			dataFacets = jsonObj.get("uco-core:hasFacet", None)
 			if not dataFacets:
 				observableType = jsonObj.get("@type", None)
@@ -1841,8 +1875,6 @@ if __name__ == '__main__':
 							processWebBookmark(jsonObj, facet)
 						elif objectType == "uco-observable:WirelessNetworkConnectionFacet":
 							processWirelessNetwork(jsonObj, facet)
-						elif objectType == "drafting:SearchedItemFacet":
-							processSearchedItems(jsonObj, facet)
 						elif objectType == "drafting:SocialMediaActivityFacet":
 							processSocialMediaActivities(jsonObj, facet)
 						elif objectType == "uco-observable:EventRecordFacet":
@@ -2015,6 +2047,12 @@ if __name__ == '__main__':
 	if totWirelessNet > 0:
 		wirelessNetText = 'Wireless Net ' + '(' + number_with_dots(totWirelessNet) + ')'
 		treeData.append({'unique_id': ':WirelessNet', 'parent_id': ':00000000', 'short_name': wirelessNetText })
+
+	totSearch = len(webSearchTerm)
+	if totSearch > 0:
+		webSearchText = 'Web Search Terms ' + '(' + number_with_dots(totSearch) + ')'
+		treeData.append({'unique_id': ':WebSearchTerms', 'parent_id': ':00000000', 'short_name': webSearchText })
+
 
 #--- Set the UI layout
 	view = view(treeData, tableData)
