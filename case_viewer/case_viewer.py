@@ -613,6 +613,9 @@ class view(QWidget):
 					elif file_type == "Uncategorized":
 						html_text = self.gather_all_files(file_type, filesUncategorized)
 					self.textEdit.setHtml(html_text)
+			elif "Web Bookmarks " in self.tree_cyber_item:
+				html_text = self.gather_all_web_bookmarks()
+				self.textEdit.setHtml(html_text)
 			elif "Web Histories " in self.tree_cyber_item:
 				html_text = self.gather_all_web_histories()
 				self.textEdit.setHtml(html_text)
@@ -710,6 +713,13 @@ class view(QWidget):
 				"<strong>Latitude</strong> " + str(row["uco-observable:mappedByLatitude"]) + "<br/>" + \
 				"<strong>Longitude</strong> " + str(row["uco-observable:mappedByLongitude"]) + "<hr/>"
 				self.textEdit.setHtml('<h2>Location device</h2>' + detail)
+			elif "Web Bookmarks" in self.tree_cyber_item:
+				row =webBookmark[row]
+				detail = "<strong>Url</strong> " + str(row["uco-observable:urlTargeted"]) + "<br/>" + \
+				"<strong>Path</strong> " + str(row["uco-observable:bookmarkPath"]) + "<br/>" + \
+				"<strong>Application</strong> " + str(row["uco-observable:application"]) + "<br/>" + \
+				"<strong>Created time</strong> " + str(row["uco-observable:observableCreatedTime"]) + "<hr/>"
+				self.textEdit.setHtml('<h2>Web Bookmark</h2>' + detail)
 			elif "Web Histories" in self.tree_cyber_item:
 				row =webURLHistory[row]
 				detail = "<strong>Url</strong> " + str(row["uco-observable:url"]) + "<br/>" + \
@@ -804,13 +814,24 @@ class view(QWidget):
 		return(detail)
 
 	def gather_all_web_histories(self):
-		html_text="<h2>Web Histories data</h2><br/>"
+		html_text="<h2>Web History data</h2><br/>"
 		for item in webURLHistory:
 			html_text = html_text + \
 			"<strong>Url</strong> " + str(item["uco-observable:url"]) + "<br/>" + \
 			"<strong>Title</strong> " + str(item["uco-observable:title"]) + "<br/>" + \
 			"<strong>Browser</strong> " + str(item["uco-observable:browserInformation"]) + "<br/>" + \
 			"<strong>Last visited</strong> " + str(item["uco-observable:lastVisited"]) + "<hr/>"
+		return html_text
+
+
+	def gather_all_web_bookmarks(self):
+		html_text="<h2>Web Bookmark data</h2><br/>"
+		for item in webBookmark:
+			html_text = html_text + \
+			"<strong>Url</strong> " + str(item["uco-observable:urlTargeted"]) + "<br/>" + \
+			"<strong>Path</strong> " + str(item["uco-observable:bookmarkPath"]) + "<br/>" + \
+			"<strong>Application</strong> " + str(item["uco-observable:application"]) + "<br/>" + \
+			"<strong>Created time</strong> " + str(item["uco-observable:observableCreatedTime"]) + "<hr/>"
 		return html_text
 
 	def gather_all_web_search_terms(self):
