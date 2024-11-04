@@ -531,6 +531,9 @@ class view(QWidget):
 			elif "Accounts " in self.tree_cyber_item:
 				html_text = self.gather_all_accounts()
 				self.textEdit.setHtml(html_text)
+			elif "Calendars " in self.tree_cyber_item:
+				html_text = self.gather_all_calendars()
+				self.textEdit.setHtml(html_text)
 			elif "Calls " in self.tree_cyber_item:
 				html_text = self.gather_all_calls()
 				self.textEdit.setHtml(html_text)
@@ -558,15 +561,14 @@ class view(QWidget):
 					if file_type == "Images":
 						html_text = "<h3>Please, select single image from the main panel.</br/><br/>" + \
 							"Viewing all images will take too much time.</h3>"
-						self.textEdit.setHtml(html_text)
 					elif file_type == "Audios":
 						html_text = self.gather_all_files(file_type, filesAudio)
 					elif file_type == "Videos":
 						html_text = "<h3>Please, select single video from the main panel.</br/><br/>" + \
 							"Viewing all videos will take too much time.</h3>"
-						self.textEdit.setHtml(html_text)
 					elif file_type == "Texts":
-						html_text = self.gather_all_files(file_type, filesText)
+						html_text = "<h3>Please, select single text from the main panel.</br/><br/>" + \
+							"Viewing all texts will take too much time.</h3>"
 					elif file_type == "Archives":
 						html_text = self.gather_all_files(file_type, filesArchive)
 					elif file_type == "Databases":
@@ -620,8 +622,16 @@ class view(QWidget):
 			elif "Accounts " in self.tree_cyber_item:
 				row = accounts[row]
 				detail = "<strong>Name</strong> " + row["uco-observable:displayName"] + "<br/>" + \
+				"<strong>Phone n.</strong> " + row["uco-observable:phoneAccount"] + "<br>" + \
 				"<strong>Identifier</strong> " + row["uco-observable:accountIdentifier"]
 				self.textEdit.setHtml('<h2>Account</h2>' + detail)
+			elif "Calendar" in self.tree_cyber_item:
+				row = calendars[row]
+				detail = "<strong>Subject</strong> " + row["uco-observable:subject"] + "<br/>" + \
+				"<strong>Start</strong> " + row["uco-observable:startTime"] + "<br/>" + \
+				"<strong>End</strong> " + row["uco-observable:endTime"] + "<br/>" + \
+				"<strong>Recurrence</strong> " + row["uco-observable:recurrence"]
+				self.textEdit.setHtml('<h2>Calendar</h2>' + detail)
 			elif "Calls" in self.tree_cyber_item:
 				row = phoneCalls[row]
 				detail = "<strong>From</strong> " + row["uco-observable:from"] + "<br/>" + \
@@ -732,6 +742,17 @@ class view(QWidget):
 			"<strong>Phone number</strong> " + a["uco-observable:phoneAccount"] + "<br/>" + \
 			"<strong>Application</strong> " + a["uco-observable:application"] + "<br/>" + \
 			"<strong>Display name</strong> " + a["uco-observable:displayName"] + "<hr/>"
+		return html_text
+
+
+	def gather_all_calendars(self):
+		html_text="<h2>Calendars data</h2><br/>"
+		for c in calendars:
+			html_text = html_text + \
+			"<strong>Subject</strong> " + c["uco-observable:subject"] + "<br/>" + \
+			"<strong>Start</strong> " + c["uco-observable:startTime"] + "<br/>" + \
+			"<strong>End</strong> " + c["uco-observable:endTime"] + "<br/>" + \
+			"<strong>Recurrence</strong> " + c["uco-observable:recurrence"] + "<hr/>"
 		return html_text
 
 
