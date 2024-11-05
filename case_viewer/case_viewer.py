@@ -1862,6 +1862,9 @@ if __name__ == '__main__':
 					elif jsonObj["uco-core:kindOfRelationship"] == "Connected_To":
 						processRelationConnectedTo(jsonObj)
 			else:
+				if isinstance(dataFacets, dict):
+					dataFacets = [dataFacets]
+
 				for facet in dataFacets:
 					objectType = facet.get("@type", None)
 					if objectType:
