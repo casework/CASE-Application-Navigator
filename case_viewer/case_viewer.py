@@ -263,13 +263,14 @@ class view(QWidget):
 	def buildDataCellSites(self, idObject):
 		tData = []
 		if idObject == ':CellSites':
-			self.headers = ["MCC", "MNC", "LAC", "CID"]
+			self.headers = ["MCC", "MNC", "LAC", "CID", "Type"]
 			for c in cell_sites:
 				cellMCC = c["uco-observable:cellSiteCountryCode"]
 				cellMNC = c["uco-observable:cellSiteNetworkCode"]
 				cellLAC = c["uco-observable:cellSiteLocationAreaCode"]
 				cellCID = c["uco-observable:cellSiteIdentifier"]
-				tData.append([cellMCC, cellMNC, cellLAC, cellCID])
+				cellType = c["uco-observable:cellSiteType"]
+				tData.append([cellMCC, cellMNC, cellLAC, cellCID, cellType])
 		return tData
 
 
@@ -729,7 +730,7 @@ class view(QWidget):
 				if m["@id"] == t:
 					html_text += "<strong>From</strong> " + m["uco-observable:from"] + "<br/>" + \
 					"<strong>To</strong> " + " ".join(m["uco-observable:to"]) + "<br/>" + \
-					"<strong>Application</strong> " + m["uco-observable:application"] + "<br/>"
+					"<strong>Application</strong> " + m["uco-observable:application"] + "<br/>" + \
 					"<strong>Message</strong><br/>" + m["uco-observable:messageText"] + "<hr/>"
 		return html_text
 
@@ -1068,7 +1069,7 @@ def processMessage(uuid_object=None, facet=None):
 	msg_type = facet.get("uco-observable:messageType", None)
 
 	try:
-		if facet["uco-observable:messageType"] == "SMS/Native Message":
+		if msg_type == "SMS/Native Message":
 			smsMessages.append(
 				{
 					"@id":uuid_object,
@@ -1109,7 +1110,10 @@ def processThread(uuid_object=None, facet=None):
 		thread_participants.append(p["@id"])
 	thread_len = facet["uco-observable:messageThread"]["co:size"]["@value"]
 	thread_messages = list()
-	for m in facet["uco-observable:messageThread"]["co:element"]:
+	thread_elements = facet["uco-observable:messageThread"]["co:element"]
+	if isinstance(thread_elements, dict):
+		thread_elements = [thread_elements]
+	for m in thread_elements:
 		thread_messages.append(m["@id"])
 	try:
 		chatThreads.append(
@@ -1231,6 +1235,7 @@ def processCellSite(uuid_object=None, facet=None):
 	cellCid = facet.get("uco-observable:cellSiteIdentifier", "-")
 	cellLac = facet.get("uco-observable:cellSiteLocationAreaCode", "-")
 	cellMnc = facet.get("uco-observable:cellSiteNetworkCode", "-")
+	cellType = facet.get("uco-observable:cellSiteType", "-")
 	try:
 		cell_sites.append(
 			{
@@ -1239,6 +1244,7 @@ def processCellSite(uuid_object=None, facet=None):
 				"uco-observable:cellSiteIdentifier": cellCid,
 				"uco-observable:cellSiteNetworkCode": cellMnc,
 				"uco-observable:cellSiteLocationAreaCode": cellLac,
+				"uco-observable:cellSiteType": cellType,
 			})
 	except Exception as e:
 		print("ERROR: in appending dictionary to Cell Site")
@@ -1414,23 +1420,34 @@ def processApplication(uuid_object=None, facet=None):
 
 
 def processCall(uuid_object=None, facet=None):
-	callId = jsonObj["@id"]
-	callFromId = facet["uco-observable:from"].get("@id", None)
+	callId = jsonObj["@id"]	
+	callFromId = get_attribute(facet, "uco-observable:from", None)
+
+	callFrom = "-"
 	if callFromId:
-		callFrom = "-"
+		callFromId = callFromId["@id"]		
 		for a in accounts:
 			if a["@id"] == callFromId:
 				callFrom = a["uco-observable:phoneAccount"] + " / " + \
 					a["uco-observable:accountIdentifier"]
 				break
-	callToId = get_attribute(facet["uco-observable:to"], "@id", None)
+	callToId = get_attribute(facet, "uco-observable:to", None)
 	if callToId:
 		callTo = "-"
-		for a in accounts:
-			if a["@id"] == callToId:
-				callTo = a["uco-observable:phoneAccount"] + " / " + \
-					a["uco-observable:accountIdentifier"]
-				break
+		if isinstance(callToId, dict):			
+			for a in accounts:
+				if a["@id"] == callToId["@id"]:
+					callTo = a["uco-observable:phoneAccount"] + " / " + \
+						a["uco-observable:accountIdentifier"]
+					break
+		elif isinstance(callToId, list):
+			for to_item in callToId:
+				for a in accounts:
+					if a["@id"] == to_item["@id"]:
+						callTo = a["uco-observable:phoneAccount"] + " / " + \
+							a["uco-observable:accountIdentifier"]
+						break
+
 	callApplication = "-"
 	callApplicationId = facet["uco-observable:application"].get("@id", "-")
 	if callApplicationId != "-":
@@ -1868,7 +1885,7 @@ if __name__ == '__main__':
 				for facet in dataFacets:
 					objectType = facet.get("@type", None)
 					if objectType:
-						#print(f"objectType={objectType}")
+						print(f"objectType={objectType}")
 						if objectType == "uco-observable:MessageFacet":
 							processMessage(uuid_object=uuid_object, facet=facet)
 						elif objectType == "uco-observable:SMSMessageFacet":
