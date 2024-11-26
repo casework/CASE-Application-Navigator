@@ -898,15 +898,17 @@ def process_id_messages():
 					a["uco-observable:accountIdentifier"] + " / " + a["uco-observable:displayName"]
 					m["uco-observable:from"] = msg_from
 					break
-		if len(m["uco-observable:to-id"]) > 0:
-			msg_to = []
-			for toId in m["uco-observable:to-id"]:
-				for a in accounts:
-					if a["@id"] == toId["@id"]:
-						msg_to.append(a["uco-observable:phoneAccount"] + " " + \
-						a["uco-observable:accountIdentifier"] + " / " + a["uco-observable:displayName"])
-						break
-			m["uco-observable:to"] = msg_to
+		
+		msg_to = []
+		if m["uco-observable:to-id"]:
+			if len(m["uco-observable:to-id"]) > 0:
+				for toId in m["uco-observable:to-id"]:
+					for a in accounts:
+						if a["@id"] == toId["@id"]:
+							msg_to.append(a["uco-observable:phoneAccount"] + " " + \
+							a["uco-observable:accountIdentifier"] + " / " + a["uco-observable:displayName"])
+							break
+				m["uco-observable:to"] = msg_to
 			
 	for m in smsMessages:
 		if m["uco-observable:from-id"]:
@@ -1885,7 +1887,7 @@ if __name__ == '__main__':
 				for facet in dataFacets:
 					objectType = facet.get("@type", None)
 					if objectType:
-						print(f"objectType={objectType}")
+						#	print(f"objectType={objectType}")
 						if objectType == "uco-observable:MessageFacet":
 							processMessage(uuid_object=uuid_object, facet=facet)
 						elif objectType == "uco-observable:SMSMessageFacet":
