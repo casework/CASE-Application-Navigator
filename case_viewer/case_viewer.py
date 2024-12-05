@@ -436,6 +436,7 @@ class view(QWidget):
 				fileName = f["uco-observable:fileName"]
 				filePath = f["uco-observable:filePath"]
 				fileSize = f["uco-observable:fileSize"]
+				tData.append([fileName, filePath, fileSize])
 				
 		if idObject in (":Images", ":Texts", ":PDFs", ":Words", ":RTFs",
 			":Audios", ":Videos", ":Archives",":Databases", ":Applications", ":Uncategorized" ):
@@ -538,6 +539,9 @@ class view(QWidget):
 			elif "Calls " in self.tree_cyber_item:
 				html_text = self.gather_all_calls()
 				self.textEdit.setHtml(html_text)
+			elif "CellSite " in self.tree_cyber_item:
+				html_text = self.gather_all_cellsites()
+				self.textEdit.setHtml(html_text)
 			elif "Cookies " in self.tree_cyber_item:
 				html_text = self.gather_all_cookies()
 				self.textEdit.setHtml(html_text)
@@ -553,11 +557,10 @@ class view(QWidget):
 				html_text = self.gather_all_events()
 				self.textEdit.setHtml(html_text)
 			elif "Location device " in self.tree_cyber_item:
-				html_text = "<h3>Please, select single location from the main panel.</br/><br/>" + \
-							"Viewing all locations will take too much time.</h3>"
+				html_text = self.gather_all_locations()
 				self.textEdit.setHtml(html_text)
-			elif file_type in ("Images", "Audios", "Videos", 
-					"Texts", "Archives", "Databases", "Applications", "Uncategorized"):	
+			elif file_type in ("Images", "Audios", "Videos",
+					"Texts", "Archives", "Databases", "Applications", "Uncategorized"):
 					print(f"Here you are! [{self.tree_cyber_item}]")
 					if file_type == "Images":
 						html_text = "<h3>Please, select single image from the main panel.</br/><br/>" + \
@@ -628,10 +631,10 @@ class view(QWidget):
 				self.textEdit.setHtml('<h2>Account</h2>' + detail)
 			elif "Calendar" in self.tree_cyber_item:
 				row = calendars[row]
-				detail = "<strong>Subject</strong> " + row["uco-observable:subject"] + "<br/>" + \
-				"<strong>Start</strong> " + row["uco-observable:startTime"] + "<br/>" + \
-				"<strong>End</strong> " + row["uco-observable:endTime"] + "<br/>" + \
-				"<strong>Recurrence</strong> " + row["uco-observable:recurrence"]
+				detail = "<strong>Subject</strong> " + str(row["uco-observable:subject"]) + "<br/>" + \
+				"<strong>Start</strong> " + str(row["uco-observable:startTime"]) + "<br/>" + \
+				"<strong>End</strong> " + str(row["uco-observable:endTime"]) + "<br/>" + \
+				"<strong>Recurrence</strong> " + str(row["uco-observable:recurrence"])
 				self.textEdit.setHtml('<h2>Calendar</h2>' + detail)
 			elif "Calls" in self.tree_cyber_item:
 				row = phoneCalls[row]
@@ -641,6 +644,14 @@ class view(QWidget):
 				"<strong>Start time</strong> " + row["uco-observable:startTime"] + "<br/>" + \
 				"<strong>Duration (s.)</strong> " + row["uco-observable:duration"]
 				self.textEdit.setHtml('<h2>Call</h2>' + detail)
+			elif "CellSite" in self.tree_cyber_item:
+				row = cell_sites[row]
+				detail = "<strong>Country code</strong> " + str(row["uco-observable:cellSiteCountryCode"]) + "<br/>" + \
+				"<strong>Identifier</strong> " + str(row["uco-observable:cellSiteIdentifier"]) + "<br/>" + \
+				"<strong>Network code</strong> " + str(row["uco-observable:cellSiteNetworkCode"]) + "<br/>" + \
+				"<strong>Location area code </strong> " + str(row["uco-observable:cellSiteLocationAreaCode"]) + "<br/>" + \
+				"<strong>Site type </strong> " + str(row["uco-observable:cellSiteType"])
+				self.textEdit.setHtml('<h2>Cell site</h2>' + detail)
 			elif "Cookies" in self.tree_cyber_item:
 				row= cookies[row]
 				detail = "<strong>Name</strong> " + str(row["uco-observable:cookieName"]) + "<br/>" + \
@@ -688,10 +699,10 @@ class view(QWidget):
 				detail = self.gather_data_file(row)
 				self.textEdit.setHtml('<h2>Uncategorized</h2>' + detail)
 			elif "Location device" in self.tree_cyber_item:
-				row =relationMappedBy[row]
-				detail = "<strong>Start date</strong> " + str(row["uco-observable:mappedByStartDate"]) + "<br/>" + \
-				"<strong>Latitude</strong> " + str(row["uco-observable:mappedByLatitude"]) + "<br/>" + \
-				"<strong>Longitude</strong> " + str(row["uco-observable:mappedByLongitude"]) + "<hr/>"
+				item =relationMappedBy[row]
+				detail = "<strong>Start date</strong> " + str(item["uco-observable:mappedByStartDate"]) + "<br/>" + \
+				"<strong>Latitude</strong> " + str(item["uco-observable:mappedByLatitude"]) + "<br/>" + \
+				"<strong>Longitude</strong> " + str(item["uco-observable:mappedByLongitude"]) + "<hr/>"
 				self.textEdit.setHtml('<h2>Location device</h2>' + detail)
 			elif "Web Bookmarks" in self.tree_cyber_item:
 				row =webBookmark[row]
@@ -750,10 +761,10 @@ class view(QWidget):
 		html_text="<h2>Calendars data</h2><br/>"
 		for c in calendars:
 			html_text = html_text + \
-			"<strong>Subject</strong> " + c["uco-observable:subject"] + "<br/>" + \
-			"<strong>Start</strong> " + c["uco-observable:startTime"] + "<br/>" + \
-			"<strong>End</strong> " + c["uco-observable:endTime"] + "<br/>" + \
-			"<strong>Recurrence</strong> " + c["uco-observable:recurrence"] + "<hr/>"
+			"<strong>Subject</strong> " + str(c["uco-observable:subject"]) + "<br/>" + \
+			"<strong>Start</strong> " + str(c["uco-observable:startTime"]) + "<br/>" + \
+			"<strong>End</strong> " + str(c["uco-observable:endTime"]) + "<br/>" + \
+			"<strong>Recurrence</strong> " + str(c["uco-observable:recurrence"]) + "<hr/>"
 		return html_text
 
 
@@ -766,6 +777,17 @@ class view(QWidget):
 			"<strong>Name</strong> " + a["uco-core:name"] + "<br/>" + \
 			"<strong>Start time</strong> " + a["uco-observable:startTime"] + "<br/>" + \
 			"<strong>Duration (s.)</strong> " + a["uco-observable:duration"] + "<hr/>"
+		return html_text
+
+	def gather_all_cellsites(self):
+		html_text="<h2>Cellsites data</h2><br/>"
+		for a in cell_sites:
+			html_text = html_text + \
+			"<strong>Country code</strong> " + str(a["uco-observable:cellSiteCountryCode"]) + "<br/>" + \
+				"<strong>Identifier</strong> " + str(a["uco-observable:cellSiteIdentifier"]) + "<br/>" + \
+				"<strong>Network code</strong> " + str(a["uco-observable:cellSiteNetworkCode"]) + "<br/>" + \
+				"<strong>Location area code </strong> " + str(a["uco-observable:cellSiteLocationAreaCode"]) + "<br/>" + \
+				"<strong>Site type </strong> " + str(a["uco-observable:cellSiteType"]) + "<hr/>"
 		return html_text
 
 
