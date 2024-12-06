@@ -655,6 +655,10 @@ class view(QWidget):
 				"<strong>Crreated time </strong> " + str(row["uco-observable:accessedTime"]) + "<br/>" + \
 				"<strong>Expiration time </strong> " + str(row["uco-observable:expirationTime"]) + "<hr/>"
 				self.textEdit.setHtml('<h2>Cookies</h2>' + detail)
+			elif "Device connection" in self.tree_cyber_item:
+				row = bluetooths[row]
+				detail = "<strong>Address</strong> " + str(row["uco-observable:addressValue"]) + "<hr/>"
+				self.textEdit.setHtml('<h2>Device connection (bluetooth)</h2>' + detail)
 			elif "Events" in self.tree_cyber_item:
 				row = events[row]
 				detail = "<strong>Type</strong> " + str(row["uco-observable:eventType"]) + "<br/>" + \
