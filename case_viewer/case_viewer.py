@@ -376,7 +376,6 @@ class view(QWidget):
 				fileName = f["uco-observable:fileName"]
 				filePath = f["uco-observable:filePath"]
 				fileSize = f["uco-observable:fileSize"]
-
 				tData.append([fileName, filePath, fileSize])
 
 		if idObject == ':Words':
@@ -432,15 +431,11 @@ class view(QWidget):
 
 		if idObject == ':Uncategorized':
 			for f in filesUncategorized:
-				#fileType = f["uco-core:tag"]
 				fileName = f["uco-observable:fileName"]
 				filePath = f["uco-observable:filePath"]
 				fileSize = f["uco-observable:fileSize"]
 				tData.append([fileName, filePath, fileSize])
 				
-		if idObject in (":Images", ":Texts", ":PDFs", ":Words", ":RTFs",
-			":Audios", ":Videos", ":Archives",":Databases", ":Applications", ":Uncategorized" ):
-			tData.append([fileName, filePath, fileSize])
 		return tData
 
 
