@@ -21,12 +21,7 @@ The Artifacts are shown in a tree-view structure in a similar manner the forensi
 In the first part of the processing the application carries out a formal check of the JSON-LD content, relying on the load method of the module json.
 
 ## Requirements
-The tool has been developed in Python version 3.x and here are some required modules:
-
-
-* codecs (UTF-8 and other codec management)
-* json
-* PyQT5
+The application relies on Poetry as dependency manager, and all dependencies are described in the *pyproject.toml* file. To use the application after downloading the code activate a custom virtual environment and then run the command *poetry install*.
 
 ## Usage
 
