@@ -31,6 +31,8 @@ where:
 
 * JSON_INPUT is the file to be processed.
 
+For those with `make` available (e.g. in a POSIX command line environment), `make` will run enough from a fresh `git clone` to set up a demonstration call of the viewer against an [example JSON-LD file](examples/WirelessNetworkConnection.json).
+
 
 ## Licensing
 

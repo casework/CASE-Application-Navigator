@@ -1,2 +1,4 @@
+*.log
 _*
 .DS_Store/*
+venv
