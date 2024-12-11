@@ -30,3 +30,8 @@ The application relies on Poetry as dependency manager, and all dependencies are
 where:
 
 * JSON_INPUT is the file to be processed.
+
+
+## Licensing
+
+Portions of this repository contributed by NIST are governed by the [NIST Software Licensing Statement](THIRD_PARTY_LICENSES.md#nist-software-licensing-statement).
