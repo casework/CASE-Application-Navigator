@@ -4,7 +4,8 @@ import sys
 from collections import deque
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from PyQt5 import QtCore, QtGui, QtWidgets
+#from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
 #import logging
 
@@ -46,8 +47,8 @@ class view(QWidget):
 		self.textEdit.setHtml('<h2>Here the details will be displayed</h2>')
 
 
-		self.model = TableModel(tableData)
-		self.table.setModel(self.model)
+		self.modelTable = TableModel(tableData)
+		self.table.setModel(self.modelTable)
 
 		self.table.headers = []
 
