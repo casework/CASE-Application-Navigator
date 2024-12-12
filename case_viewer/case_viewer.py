@@ -1,13 +1,42 @@
+# Portions of this file contributed by NIST are governed by the
+# following statement:
+#
+# This software was developed at the National Institute of Standards
+# and Technology by employees of the Federal Government in the course
+# of their official duties. Pursuant to Title 17 Section 105 of the
+# United States Code, this software is not subject to copyright
+# protection within the United States. NIST assumes no responsibility
+# whatsoever for its use by other parties, and makes no guarantees,
+# expressed or implied, about its quality, reliability, or any other
+# characteristic.
+#
+# We would appreciate acknowledgement if the software is used.
+
 import json
 import codecs
 import sys
 from collections import deque
+from typing import Optional, Union
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 #from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
 #import logging
+
+# Define Python type for JSON-LD.  This is to help distinguish between
+# general dictionaries and JSON-LD data.
+# Note: This type is slightly more strict than a general JSON type.  In
+# particular, float is intentionally not included, to prevent confusion
+# in type conversions between JSON-LD and Python.
+JSONLD = Union[
+    None,
+    bool,
+    dict[str, "JSONLD"],
+    int,
+    list["JSONLD"],
+    str,
+]
 
 class TableModel(QtCore.QAbstractTableModel):
 	def __init__(self, data):
@@ -141,8 +170,8 @@ class view(QWidget):
 
 
 
-	def buildTableData(self, idObject):
-		self.headers = []
+	def buildTableData(self, idObject: str) -> list:
+		self.headers: list[str] = []
 		tData = self.buildDataChatMessages(idObject)
 		if len(tData) == 0:
 			tData = self.buildDataPhoneCalls(idObject)
@@ -275,7 +304,7 @@ class view(QWidget):
 		return tData
 
 
-	def buildDataWirelessNet(self, idObject):
+	def buildDataWirelessNet(self, idObject: str) -> list[list[str]]:
 		tData = []
 		if idObject == ':WirelessNet':
 			self.headers = ["SSID", "BSID"]
@@ -892,7 +921,7 @@ class view(QWidget):
 		return html_text
 
 
-	def gather_all_wireless_nets(self):
+	def gather_all_wireless_nets(self) -> str:
 		html_text="<h2>Wireless Network connections</h2><br/>"
 		for item in wireless_net:
 			html_text = html_text + \
@@ -1356,7 +1385,8 @@ def processSocialMediaActivities(jsonObj, facet):
 		print (e)
 
 
-def processWirelessNetwork(jsonObj, facet):
+def processWirelessNetwork(jsonObj: dict[str, JSONLD], facet: dict[str, JSONLD]) -> None:
+	assert isinstance(jsonObj["@id"], str), "Anonymous object found in CASE JSON-LD data."
 	wId = jsonObj["@id"]
 	wSsid = get_attribute(facet, "uco-observable:ssid", '')
 	wBssid = get_attribute(facet, "uco-observable:baseStation", '')
@@ -1826,7 +1856,7 @@ if __name__ == '__main__':
 	searched_items = []
 	social_media_activities = []
 	events = []
-	wireless_net = []
+	wireless_net: list[dict[str, str]] = []
 	relationAttachmentsTo = []
 	relationMappedBy = []
 	relationConnectedTo = []

@@ -30,3 +30,10 @@ The application relies on Poetry as dependency manager, and all dependencies are
 where:
 
 * JSON_INPUT is the file to be processed.
+
+For those with `make` available (e.g. in a POSIX command line environment), `make` will run enough from a fresh `git clone` to set up a demonstration call of the viewer against an [example JSON-LD file](examples/WirelessNetworkConnection.json).
+
+
+## Licensing
+
+Portions of this repository contributed by NIST are governed by the [NIST Software Licensing Statement](THIRD_PARTY_LICENSES.md#nist-software-licensing-statement).
