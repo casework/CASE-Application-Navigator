@@ -16,12 +16,10 @@ import json
 import codecs
 import sys
 from collections import deque
-from typing import Optional, Union
+from typing import Optional, Union, List, Dict
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-#from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import QtCore
-from PyQt5.QtCore import Qt
 #import logging
 
 # Define Python type for JSON-LD.  This is to help distinguish between
@@ -44,7 +42,7 @@ class TableModel(QtCore.QAbstractTableModel):
 		self._data = data
 
 	def data(self, index, role):
-		if role == Qt.DisplayRole:
+		if role == QtCore.Qt.DisplayRole:
 			# See below for the nested-list data structure.
 			# .row() indexes into the outer list,
 			# .column() indexes into the sub-list
@@ -535,7 +533,7 @@ class view(QWidget):
 
 
 	def select_left_bar(self, index):
-		text = index.data(Qt.DisplayRole)
+		text = index.data(QtCore.Qt.DisplayRole)
 		threadId = ''
 		for i, dic in enumerate(treeData):
 			if dic['short_name'] == text:
@@ -626,7 +624,7 @@ class view(QWidget):
 
 	def select_main_panel(self, item):
 		#text = index.data(Qt.DisplayRole)
-		print(f"in itemTableSelected, item row={item.row()}, cyber items={self.tree_cyber_item}")
+		#print(f"in itemTableSelected, item row={item.row()}, cyber items={self.tree_cyber_item}")
 		if item.row():
 			row = int(item.row() - 1)
 			if 'Email' in self.tree_cyber_item:
@@ -1846,43 +1844,43 @@ if __name__ == '__main__':
 	C_CYAN = '\033[36m'
 	EMPTY_DATA = "1900-01-01T00:00:00"
 
-	chatThreads = []
-	chatMessages = []
-	chatMessageAttachments = []
-	cookies = []
-	geo_coordinates = []
-	cell_sites = []
-	bluetooths = []
-	searched_items = []
-	social_media_activities = []
-	events = []
+	chatThreads: list[dict[str, str]] = []
+	chatMessages: list[dict[str, str]] = []
+	#chatMessageAttachments = []
+	cookies: list[dict[str, str]] = []
+	geo_coordinates: list[dict[str, str]] = []
+	cell_sites: list[dict[str, str]] = []
+	bluetooths: list[dict[str, str]] = []
+	searched_items: list[dict[str, str]] = []
+	social_media_activities: list[dict[str, str]] = []
+	events: list[dict[str, str]] = []
 	wireless_net: list[dict[str, str]] = []
-	relationAttachmentsTo = []
-	relationMappedBy = []
-	relationConnectedTo = []
-	smsMessages = []
-	accounts = []
-	emailAddresses = []
-	emailAccounts = []
-	applications = []
-	phoneCalls = []
-	calendars = []
-	emailMessages = []
-	filesUncategorized = []
-	filesImage = []
-	filesAudio = []
-	filesText = []
-	filesPDF = []
-	filesWord = []
-	filesRTF = []
-	filesVideo = []
-	filesArchive = []
-	filesDatabase = []
-	filesApplication = []
-	webURLs = []
-	webURLHistory = []
-	webSearchTerm =[]
-	webBookmark = []
+	relationAttachmentsTo: list[dict[str, str]] = []
+	relationMappedBy: list[dict[str, str]] = []
+	relationConnectedTo: list[dict[str, str]] = []
+	smsMessages: list[dict[str, str]] = []
+	accounts: list[dict[str, str]] = []
+	emailAddresses: list[dict[str, str]] = []
+	emailAccounts: list[dict[str, str]] = []
+	applications: list[dict[str, str]] = []
+	phoneCalls: list[dict[str, str]] = []
+	calendars: list[dict[str, str]] = []
+	emailMessages: list[dict[str, str]] = []
+	filesUncategorized: list[dict[str, str]] = []
+	filesImage: list[dict[str, str]] = []
+	filesAudio: list[dict[str, str]] = []
+	filesText: list[dict[str, str]] = []
+	filesPDF: list[dict[str, str]] = []
+	filesWord: list[dict[str, str]] = []
+	filesRTF: list[dict[str, str]] = []
+	filesVideo: list[dict[str, str]] = []
+	filesArchive: list[dict[str, str]] = []
+	filesDatabase: list[dict[str, str]] = []
+	filesApplication: list[dict[str, str]] = []
+	webURLs: list[dict[str, str]] = []
+	webURLHistory: list[dict[str, str]] = []
+	webSearchTerm: list[dict[str, str]] = []
+	webBookmark: list[dict[str, str]] = []
 
 #--- Read input file in CASE-JSON format
 	try:
@@ -1895,8 +1893,9 @@ if __name__ == '__main__':
 		print(C_CYAN + "Load JSON structure, it might take some time, please wait ...\n")
 		json_obj = json.load(f)
 		app = QApplication([])
+		_widget=QWidget()
 		msgBox = QMessageBox()
-		reply = msgBox.question(None, "CASE syntax check result",
+		reply = msgBox.question(_widget, "CASE syntax check result",
 								"Syntax check went well! Do you want to continue?",
 								QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
 
@@ -2001,8 +2000,8 @@ if __name__ == '__main__':
 	f.close()
 	print(C_CYAN + "\n\nEnd Observables processing!" + C_BLACK + "\n\n")
 
-	tableData = [[]]
-	treeData = []
+	tableData: list[list[str]] = [[]]
+	treeData: list[dict[str,str]] = []
 	i = 1
 	totMessages = 0
 
