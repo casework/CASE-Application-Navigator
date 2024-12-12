@@ -2136,8 +2136,8 @@ if __name__ == '__main__':
 		treeData.append({'unique_id': ':WebSearchTerms', 'parent_id': ':00000000', 'short_name': webSearchText })
 
 #--- Set the UI layout
-	view = view(treeData, tableData)
-	view.setGeometry(50, 50, 1400, 800)
-	view.setWindowTitle('Cyber items view - ' + sys.argv[1] + ' (n. Observables: ' + number_with_dots(nObjects) + ')')
-	view.show()
+	_view = view(treeData, tableData)
+	_view.setGeometry(50, 50, 1400, 800)
+	_view.setWindowTitle('Cyber items view - ' + sys.argv[1] + ' (n. Observables: ' + number_with_dots(nObjects) + ')')
+	_view.show()
 	sys.exit(app.exec_())
