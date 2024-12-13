@@ -929,8 +929,14 @@ class view(QWidget):
 
 
 ### global funtions
-def get_attribute(data, property, default_value):
+def get_attribute(data: dict[str, JSONLD], property: str, default_value: JSONLD) -> JSONLD:
 	return data.get(property) or default_value
+
+
+def get_optional_string_attribute(data: dict[str, JSONLD], property: str, default_value: str) -> str:
+	return_value: JSONLD = get_attribute(data, property, default_value)
+	assert isinstance(return_value, str)
+	return return_value
 
 
 def process_id_messages():
@@ -1386,8 +1392,8 @@ def processSocialMediaActivities(jsonObj, facet):
 def processWirelessNetwork(jsonObj: dict[str, JSONLD], facet: dict[str, JSONLD]) -> None:
 	assert isinstance(jsonObj["@id"], str), "Anonymous object found in CASE JSON-LD data."
 	wId = jsonObj["@id"]
-	wSsid = get_attribute(facet, "uco-observable:ssid", '')
-	wBssid = get_attribute(facet, "uco-observable:baseStation", '')
+	wSsid = get_optional_string_attribute(facet, "uco-observable:ssid", '')
+	wBssid = get_optional_string_attribute(facet, "uco-observable:baseStation", '')
 	try:
 		wireless_net.append(
 			{
