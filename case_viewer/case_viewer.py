@@ -1824,7 +1824,7 @@ def processURLHistory(jsonObj, facet):
 		print (e)
 
 
-def number_with_dots(n):
+def number_with_dots(n: Union[int, str]) -> str:
 	if isinstance(n, int) or isinstance(n, str):
 		n = str(n)
 		num_dots = n[-3:]
@@ -1834,7 +1834,7 @@ def number_with_dots(n):
 			n = n[:-3]
 		return(num_dots)
 	else:
-		return('Parameter must be either integer or string')
+		raise TypeError('Parameter must be either integer or string')
 
 if __name__ == '__main__':
 #--- Gobal variables
