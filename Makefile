@@ -25,6 +25,14 @@ all: \
 .PHONY: \
   check-examples
 
+.mypy.done.log: \
+  .venv.done.log \
+  case_viewer/case_viewer.py
+	source venv/bin/activate \
+	  && poetry run mypy \
+	    case_viewer/case_viewer.py
+	touch $@
+
 .venv.done.log: \
   pyproject.toml
 	rm -rf venv
@@ -42,6 +50,7 @@ all: \
 	touch $@
 
 check: \
+  .mypy.done.log \
   check-examples
 
 check-examples: \
@@ -55,6 +64,6 @@ clean:
 	  --director examples \
 	  clean
 	@rm -f \
-	  .venv.done.log
+	  .*.done.log
 	@rm -rf \
 	  venv

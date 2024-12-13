@@ -12,6 +12,8 @@ json5 = "^0.9.25"
 pyqt5 = "^5.15.10"
 argparse = "^1.4.0"
 
+[tool.poetry.dev-dependencies]
+mypy = "^1"
 
 [build-system]
 requires = ["poetry-core"]
