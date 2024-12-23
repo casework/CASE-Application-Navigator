@@ -22,19 +22,7 @@ from PyQt5.QtGui import *
 from PyQt5 import QtCore
 #import logging
 
-# Define Python type for JSON-LD.  This is to help distinguish between
-# general dictionaries and JSON-LD data.
-# Note: This type is slightly more strict than a general JSON type.  In
-# particular, float is intentionally not included, to prevent confusion
-# in type conversions between JSON-LD and Python.
-JSONLD = Union[
-    None,
-    bool,
-    dict[str, "JSONLD"],
-    int,
-    list["JSONLD"],
-    str,
-]
+from .lib import JSONLD, get_attribute, get_optional_integer_attribute, get_optional_string_attribute
 
 class TableModel(QtCore.QAbstractTableModel):
 	def __init__(self, data):
@@ -929,16 +917,6 @@ class view(QWidget):
 
 
 ### global funtions
-def get_attribute(data: dict[str, JSONLD], property: str, default_value: JSONLD) -> JSONLD:
-	return data.get(property) or default_value
-
-
-def get_optional_string_attribute(data: dict[str, JSONLD], property: str, default_value: str) -> str:
-	return_value: JSONLD = get_attribute(data, property, default_value)
-	assert isinstance(return_value, str)
-	return return_value
-
-
 def process_id_messages():
 	for m in chatMessages:
 		if m["uco-observable:application-id"]:
@@ -1165,7 +1143,8 @@ def processThread(uuid_object=None, facet=None):
 	thread_participants = list()
 	for p in facet["uco-observable:participant"]:
 		thread_participants.append(p["@id"])
-	thread_len = facet["uco-observable:messageThread"]["co:size"]["@value"]
+	thread = facet["uco-observable:messageThread"]
+	thread_len = get_optional_integer_attribute(thread, "co:size", "-")
 	thread_messages = list()
 	thread_elements = facet["uco-observable:messageThread"]["co:element"]
 	if isinstance(thread_elements, dict):
@@ -1514,9 +1493,7 @@ def processCall(uuid_object=None, facet=None):
 	callStartTime = facet.get("uco-observable:startTime", "-")
 	if callStartTime != "-":
 		callStartTime = facet["uco-observable:startTime"]["@value"]
-	callDuration = get_optional_string_attribute(facet, "uco-observable:duration", "")
-	if callDuration:
-		callDuration = facet["uco-observable:duration"]["@value"]
+	callDuration = get_optional_integer_attribute(facet, "uco-observable:duration", "-")
 	try:
 		phoneCalls.append(
 			{
@@ -1604,9 +1581,7 @@ def processFile(jsonObj, facet):
 	fileTag = get_optional_string_attribute(facet, "uco-observable:mimeType", "")
 	fileName = get_optional_string_attribute(facet, "uco-observable:fileName", "")
 	filePath = get_optional_string_attribute(facet, "uco-observable:filePath", "")
-	fileSize = get_optional_string_attribute(facet, "uco-observable:sizeInBytes", "")
-	if fileSize:
-		fileSize = facet["uco-observable:sizeInBytes"]["@value"]
+	fileSize = get_optional_integer_attribute(facet, "uco-observable:sizeInBytes", "-")
 	tagProcessed = False;
 	try:
 		fileTagNorm = fileTag.lower()

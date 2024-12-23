@@ -27,14 +27,28 @@ all: \
 
 .mypy.done.log: \
   .venv.done.log \
-  case_viewer/case_viewer.py
+  case_viewer/case_viewer.py \
+  case_viewer/lib.py
+	source venv/bin/activate \
+	  && poetry run mypy \
+	    --strict \
+	    case_viewer/lib.py
 	source venv/bin/activate \
 	  && poetry run mypy \
 	    case_viewer/case_viewer.py
 	touch $@
 
+.pytest.done.log: \
+  .mypy.done.log
+	source venv/bin/activate \
+	  && poetry run pytest \
+	    --doctest-modules \
+	    case_viewer/lib.py
+	touch $@
+
 .venv.done.log: \
   pyproject.toml
+	rm -f poetry.lock
 	rm -rf venv
 	python3 -m venv venv
 	source venv/bin/activate \
@@ -50,7 +64,7 @@ all: \
 	touch $@
 
 check: \
-  .mypy.done.log \
+  .pytest.done.log \
   check-examples
 
 check-examples: \
