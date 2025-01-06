@@ -22,7 +22,9 @@ from PyQt5.QtGui import *
 from PyQt5 import QtCore
 #import logging
 
-from .lib import JSONLD, get_attribute, get_optional_integer_attribute, get_optional_string_attribute
+from lib import JSONLD, get_attribute, get_optional_integer_attribute, \
+						get_optional_string_attribute, get_optional_dict_attribute, \
+						get_optional_list_attribute
 
 class TableModel(QtCore.QAbstractTableModel):
 	def __init__(self, data):
@@ -593,6 +595,9 @@ class view(QWidget):
 					elif file_type == "Uncategorized":
 						html_text = self.gather_all_files(file_type, filesUncategorized)
 					self.textEdit.setHtml(html_text)
+			elif "Social media activities" in self.tree_cyber_item:
+				html_text = self.gather_all_social_media_activities()
+				self.textEdit.setHtml(html_text)
 			elif "Web Bookmarks " in self.tree_cyber_item:
 				html_text = self.gather_all_web_bookmarks()
 				self.textEdit.setHtml(html_text)
@@ -630,8 +635,8 @@ class view(QWidget):
 				to_participants = ""
 				for p in row["uco-observable:to"]:
 					to_participants = to_participants + p + "; "
-				detail = "<strong>From</strong> " + row["uco-observable:from"] + "<br/>" + \
-				"<strong>To</strong> " + to_participants + "<br/>" + \
+				detail = "<strong>From</strong> " + str(row["uco-observable:from"]) + "<br/>" + \
+				"<strong>To</strong> " + str(to_participants) + "<br/>" + \
 				"<strong>Message</strong><br/>" + row["uco-observable:messageText"] + '<hr/>'
 				self.textEdit.setHtml('<h2>Chat message</h2>' + detail)
 			elif "Accounts " in self.tree_cyber_item:
@@ -649,11 +654,11 @@ class view(QWidget):
 				self.textEdit.setHtml('<h2>Calendar</h2>' + detail)
 			elif "Calls" in self.tree_cyber_item:
 				row = phoneCalls[row]
-				detail = "<strong>From</strong> " + row["uco-observable:from"] + "<br/>" + \
-				"<strong>To</strong> " + row["uco-observable:to"] + "<br/>" + \
+				detail = "<strong>From</strong> " + str(row["uco-observable:from"]) + "<br/>" + \
+				"<strong>To</strong> " + str(row["uco-observable:to"]) + "<br/>" + \
 				"<strong>Name</strong> " + row["uco-core:name"] + "<br/>" + \
-				"<strong>Start time</strong> " + row["uco-observable:startTime"] + "<br/>" + \
-				"<strong>Duration (s.)</strong> " + row["uco-observable:duration"]
+				"<strong>Start time</strong> " + str(row["uco-observable:startTime"]) + "<br/>" + \
+				"<strong>Duration (s.)</strong> " + str(row["uco-observable:duration"])
 				self.textEdit.setHtml('<h2>Call</h2>' + detail)
 			elif "CellSite" in self.tree_cyber_item:
 				row = cell_sites[row]
@@ -719,6 +724,17 @@ class view(QWidget):
 				"<strong>Latitude</strong> " + str(item["uco-observable:mappedByLatitude"]) + "<br/>" + \
 				"<strong>Longitude</strong> " + str(item["uco-observable:mappedByLongitude"]) + "<hr/>"
 				self.textEdit.setHtml('<h2>Location device</h2>' + detail)
+			elif "Social media activities" in self.tree_cyber_item:
+				item =social_media_activities[row]
+				detail = "<strong>Body</strong> " + str(item["uco-observable:body"]) + "<br/>" + \
+				"<strong>Title</strong> " + str(item["uco-observable:pageTitle"]) + "<br/>" + \
+				"<strong>Date</strong> " + str(item["uco-observable:observableCreatedTime"]) + "<br/>"
+				"<strong>ApplicationName</strong> " + str(item["uco-observable:application"]) + "<br/>"
+				"<strong>Author ID</strong> " + str(item["drafting:authorIdentifier"]) + "<br/>"
+				"<strong>Account ID</strong> " + str(item["drafting:authorName"]) + "<br/>"
+				"<strong>Name</strong> " + str(item["uco-observable:application"]) + "<br/>"
+				"<strong>Type</strong> " + str(item["drafting:activityType"])
+				self.textEdit.setHtml('<h2>Social media activity</h2>' + detail)
 			elif "Web Bookmarks" in self.tree_cyber_item:
 				row =webBookmark[row]
 				detail = "<strong>Url</strong> " + str(row["uco-observable:urlTargeted"]) + "<br/>" + \
@@ -787,11 +803,11 @@ class view(QWidget):
 		html_text="<h2>Calls data</h2><br/>"
 		for a in phoneCalls:
 			html_text = html_text + \
-			"<strong>From</strong> " + a["uco-observable:to"] + "<br/>" + \
-			"<strong>To</strong> " + a["uco-observable:to"] + "<br/>" + \
+			"<strong>From</strong> " + str(a["uco-observable:from"]) + "<br/>" + \
+			"<strong>To</strong> " + str(a["uco-observable:to"]) + "<br/>" + \
 			"<strong>Name</strong> " + a["uco-core:name"] + "<br/>" + \
-			"<strong>Start time</strong> " + a["uco-observable:startTime"] + "<br/>" + \
-			"<strong>Duration (s.)</strong> " + a["uco-observable:duration"] + "<hr/>"
+			"<strong>Start time</strong> " + str(a["uco-observable:startTime"]) + "<br/>" + \
+			"<strong>Duration (s.)</strong> " + str(a["uco-observable:duration"]) + "<hr/>"
 		return html_text
 
 	def gather_all_cellsites(self):
@@ -875,6 +891,21 @@ class view(QWidget):
 		"<strong>Path</strong> " + str(row["uco-observable:filePath"]) + "<br/>" + \
 		"<strong>Size</strong> " + str(row["uco-observable:fileSize"]) + "<hr/>"
 		return(detail)
+
+
+	def gather_all_social_media_activities(self):
+		html_text="<h2>Social Media Activities data</h2><br/>"
+		for item in social_media_activities:
+			html_text = html_text + \
+			"<strong>Body</strong> " + str(item["uco-observable:body"]) + "<br/>" + \
+			"<strong>Title</strong> " + str(item["uco-observable:pageTitle"]) + "<br/>" + \
+			"<strong>Date</strong> " + str(item["uco-observable:observableCreatedTime"]) + "<br/>" + \
+			"<strong>ApplicationName</strong> " + str(item["uco-observable:application"]) + "<br/>" + \
+			"<strong>Author ID</strong> " + str(item["drafting:authorIdentifier"]) + "<br/>" + \
+			"<strong>Account ID</strong> " + str(item["drafting:authorName"]) + "<br/>" + \
+			"<strong>Name</strong> " + str(item["uco-observable:application"]) + "<br/>" + \
+			"<strong>Type</strong> " + str(item["drafting:activityType"]) + "<hr/>"
+		return html_text
 
 
 	def gather_all_web_histories(self):
@@ -1040,12 +1071,15 @@ def processRelationAttachments(jsonObj):
 def processRelationConnectedTo(jsonObj):
 	id_connected_source = jsonObj["uco-core:source"]["@id"]
 	id_connected_target = jsonObj["uco-core:target"]["@id"]
-	startTime = ""
-	if jsonObj.get("uco-observable:startTime", None):
+	
+	startTime = get_optional_dict_attribute(jsonObj, "uco-observable:startTime", {})
+	if startTime:
 		startTime = jsonObj["uco-observable:startTime"]["@value"]
-	endTime = ""
-	if jsonObj.get("uco-observable:endTime", None):
+	
+	endTime = get_optional_dict_attribute(jsonObj, "uco-observable:endTime", {})
+	if endTime:
 		endTime = jsonObj["uco-observable:endTime"]["@value"]
+	
 	try:
 		relationConnectedTo.append(
 			{
@@ -1068,7 +1102,7 @@ def processRelationMappedBy(jsonObj):
 			latitude_mapped_by = c["uco-location:latitude"]
 			longitude_mapped_by = c["uco-location:longitude"]
 			break
-	start_date = jsonObj.get("uco-observable:startTime", None)
+	start_date = get_optional_dict_attribute(jsonObj, "uco-observable:startTime", {})
 	if start_date:
 		start_date = jsonObj["uco-observable:startTime"]["@value"]
 	try:
@@ -1085,23 +1119,24 @@ def processRelationMappedBy(jsonObj):
 
 
 def processMessage(uuid_object=None, facet=None):
-	msg_text = facet.get("uco-observable:messageText", None)
-	msg_app_id = facet.get("uco-observable:application", None)
-	
+	msg_text = get_optional_string_attribute(facet, "uco-observable:messageText", '')
+	msg_app_id = get_optional_dict_attribute(facet, "uco-observable:application", {})
 	if msg_app_id:
-		msg_app_id = msg_app_id["@id"]
+		msg_app_id = facet["uco-observable:application"]["@id"]
 
-	msg_sent_time = facet.get("uco-observable:sentTime", None)
-	
+	msg_sent_time = get_optional_dict_attribute(facet, "uco-observable:sentTime", {})
 	if msg_sent_time:
 		msg_sent_time = facet["uco-observable:sentTime"]["@value"]
 	
-	msg_from_id = facet.get("uco-observable:from", None)
-	
+	msg_from_id = get_optional_dict_attribute(facet, "uco-observable:from", {})
 	if msg_from_id:
-		msg_from_id = msg_from_id["@id"]
-	msg_to_id = facet.get("uco-observable:to", None)
-	msg_type = facet.get("uco-observable:messageType", None)
+		msg_from_id = facet["uco-observable:from"]["@id"]
+	
+	msg_to_id = get_optional_list_attribute(facet, "uco-observable:to", [])
+	if msg_to_id:
+		msg_to_id = facet["uco-observable:to"]
+
+	msg_type = get_optional_string_attribute(facet, "uco-observable:messageType", "")
 
 	try:
 		if msg_type == "SMS/Native Message":
@@ -1172,14 +1207,16 @@ def processAccount(uuid_object=None, facet=None, kind=None):
 	accountName = ""
 
 	if kind == "AccountFacet":
-		accountIdentifier = facet.get("uco-observable:accountIdentifier", "-")
+		accountIdentifier = get_optional_string_attribute(facet, "uco-observable:accountIdentifier", "")
 		for a in accounts:
 			if a["@id"] == uuid_object:
 				a["uco-observable:accountIdentifier"] = accountIdentifier
 				accountFound = True
 				break
 	elif kind == "ApplicationAccountFacet":
-		idApp = facet["uco-observable:application"]["@id"]
+		idApp = get_optional_dict_attribute(facet, "uco-observable:application", {})
+		if idApp:
+			idApp = facet["uco-observable:application"]["@id"]
 		accountApplication = '?'
 		for app in applications:
 			if app["@id"] == idApp:
@@ -1191,8 +1228,8 @@ def processAccount(uuid_object=None, facet=None, kind=None):
 				accountFound = True
 				break
 	elif kind == "PhoneAccountFacet":
-		accountPhoneNumber = facet.get("uco-observable:phoneNumber", "-")
-		accountName = facet.get("uco-observable:accountIdentifier", "-")
+		accountPhoneNumber = get_optional_string_attribute(facet, "uco-observable:phoneNumber", "")
+		accountName = get_optional_string_attribute(facet, "uco-observable:accountIdentifier", "")
 		for a in accounts:
 			if a["@id"] == uuid_object:
 				a["uco-observable:phoneAccount"] = accountPhoneNumber
@@ -1200,7 +1237,7 @@ def processAccount(uuid_object=None, facet=None, kind=None):
 				accountFound = True
 				break
 	elif kind == "DigitalAccountFacet":
-		accountName = facet.get("uco-observable:displayName", "-")
+		accountName = get_optional_string_attribute(facet, "uco-observable:displayName", "")
 		for a in accounts:
 			if a["@id"] == uuid_object:
 				a["uco-observable:displayName"] = accountName
@@ -1224,7 +1261,7 @@ def processAccount(uuid_object=None, facet=None, kind=None):
 
 
 def processEmailAddress(uuid_object=None, facet=None):
-	accountEmail = facet.get("uco-observable:addressValue", "-")
+	accountEmail = get_optional_string_attribute(facet, "uco-observable:addressValue", "")
 	try:
 		emailAddresses.append(
 			{
@@ -1253,7 +1290,7 @@ def processEmailAccount(uuid_object=None, facet=None):
 
 
 def processBluetooth(uuid_object=None, facet=None):
-	bt_address = facet.get("uco-observable:addressValue", "-")
+	bt_address = get_optional_string_attribute(facet, "uco-observable:addressValue", "")
 	try:
 		bluetooths.append(
 			{
@@ -1267,11 +1304,11 @@ def processBluetooth(uuid_object=None, facet=None):
 
 
 def processCellSite(uuid_object=None, facet=None):
-	cellMcc = facet.get("uco-observable:cellSiteCountryCode", "-")
-	cellCid = facet.get("uco-observable:cellSiteIdentifier", "-")
-	cellLac = facet.get("uco-observable:cellSiteLocationAreaCode", "-")
-	cellMnc = facet.get("uco-observable:cellSiteNetworkCode", "-")
-	cellType = facet.get("uco-observable:cellSiteType", "-")
+	cellMcc = get_optional_string_attribute(facet, "uco-observable:cellSiteCountryCode", "")
+	cellCid = get_optional_string_attribute(facet, "uco-observable:cellSiteIdentifier", "")
+	cellLac = get_optional_string_attribute(facet, "uco-observable:cellSiteLocationAreaCode", "")
+	cellMnc = get_optional_string_attribute(facet, "uco-observable:cellSiteNetworkCode", "")
+	cellType = get_optional_string_attribute(facet, "uco-observable:cellSiteType", "")
 	try:
 		cell_sites.append(
 			{
@@ -1289,7 +1326,7 @@ def processCellSite(uuid_object=None, facet=None):
 
 def processEvents(jsonObj, facet):
 	eventId = jsonObj["@id"]
-	eventCreated = get_optional_string_attribute(facet, "uco-observable:observableCreatedTime", '')
+	eventCreated = get_optional_dict_attribute(facet, "uco-observable:observableCreatedTime", {})
 	if eventCreated:
 		eventCreated = facet["uco-observable:observableCreatedTime"]["@value"]
 	eventType = get_optional_string_attribute(facet, "uco-observable:eventType", "")
@@ -1309,7 +1346,7 @@ def processEvents(jsonObj, facet):
 
 def processSearchedItems(jsonObj, facet):
 	searchId = jsonObj["@id"]
-	searchApp = get_optional_string_attribute(facet, "uco-observable:application", "")
+	searchApp = get_optional_dict_attribute(facet, "uco-observable:application", {})
 	if searchApp:
 		searchAppId = facet["uco-observable:application"]["@id"]
 		for a in applications:
@@ -1337,19 +1374,23 @@ def processSocialMediaActivities(jsonObj, facet):
 	socialId = jsonObj["@id"]
 	socialBody = get_optional_string_attribute(facet, "uco-observable:body", "")
 	socialTitle = get_optional_string_attribute(facet, "uco-observable:pageTitle", "")
-	socialDate = get_optional_string_attribute(facet, "uco-observable:observableCreatedTime", "")
+	socialDate = get_optional_dict_attribute(facet, "uco-observable:observableCreatedTime", {})
 	if socialDate:
 		socialDate = facet["uco-observable:observableCreatedTime"]["@value"]
-	socialAppId = facet["uco-observable:application"]["@id"]
+	socialAppId = get_optional_dict_attribute(facet, "uco-observable:application", {})
 	socialApp = ''
-	for a in applications:
-		if a["@id"] == socialAppId:
-			socialApp = a["uco-core:name"]
-			break
+	if socialAppId:
+		socialAppId = facet["uco-observable:application"]["@id"]
+		for a in applications:
+			if a["@id"] == socialAppId:
+				socialApp = a["uco-core:name"]
+				break
 	socialAuthorId = get_optional_string_attribute(facet, "drafting:authorIdentifier", "")
 	socialAccountId = get_optional_string_attribute(facet, "uco-observable:accountIdentifier", "")
 	socialName = get_optional_string_attribute(facet, "drafting:authorName", "")
-	socialType = get_optional_string_attribute(facet, "drafting:activityType", "")
+	socialType = get_optional_list_attribute(facet, "@type", [])
+	if socialType:
+		socialType = facet["@type"][0]
 	try:
 		social_media_activities.append(
 			{
@@ -1386,21 +1427,26 @@ def processWirelessNetwork(jsonObj: dict[str, JSONLD], facet: dict[str, JSONLD])
 
 
 def processCookie(uuid_object=None, facet=None):
-	cookieAppId = get_optional_string_attribute(facet, "uco-observable:application", '')
-	cookieApp = "-"
+	cookieAppId = get_optional_dict_attribute(facet, "uco-observable:application", {})
 	if cookieAppId:
-		cookieAppId = cookieAppId["@id"]
+		cookieAppId = facet["uco-observable:application"]["@id"]
+	cookieApp = "-"
 	cookieName = get_optional_string_attribute(facet, "uco-observable:cookieName", '')
 	cookiePath = get_optional_string_attribute(facet, "uco-observable:cookiePath", '')
-	cookieCreatedTime = get_optional_string_attribute(facet, "uco-observable:observableCreatedTime", '')
+	
+	cookieCreatedTime = get_optional_dict_attribute(facet, "uco-observable:observableCreatedTime", {})
 	if cookieCreatedTime:
 		cookieCreatedTime = facet["uco-observable:observableCreatedTime"]["@value"]
-	cookieLastAccessedTime = get_optional_string_attribute(facet, "uco-observable:accessedTime", '')
+
+	cookieLastAccessedTime = get_optional_dict_attribute(facet, "uco-observable:accessedTime", {})
 	if cookieLastAccessedTime:
 		cookieLastAccessedTime = facet["uco-observable:accessedTime"]["@value"]
-	cookieExpirationTime = get_optional_string_attribute(facet, "uco-observable:expirationTime", '')
+	
+	cookieExpirationTime = get_optional_dict_attribute(facet, "uco-observable:expirationTime", {})
 	if cookieExpirationTime:
 		cookieExpirationTime = facet["uco-observable:expirationTime"]["@value"]
+	
+		
 	try:
 		cookies.append(
 			{
@@ -1419,13 +1465,13 @@ def processCookie(uuid_object=None, facet=None):
 
 
 def processCoordinate(uuid_object=None, facet=None):
-	coordinateLat = get_optional_string_attribute(facet, "uco-location:latitude", '')
+	coordinateLat = get_optional_dict_attribute(facet, "uco-location:latitude", {})
 	if coordinateLat:
 		coordinateLat = facet["uco-location:latitude"]["@value"]
-	coordinateLong = get_optional_string_attribute(facet, "uco-location:longitude", '')
+	coordinateLong = get_optional_dict_attribute(facet, "uco-location:longitude", {})
 	if coordinateLong:
 		coordinateLong = facet["uco-location:longitude"]["@value"]
-	coordinateAlt = get_optional_string_attribute(facet, "uco-location:altitude", '')
+	coordinateAlt = get_optional_dict_attribute(facet, "uco-location:altitude", {})
 	if coordinateAlt:
 		coordinateAlt = facet["uco-location:altitude"]["@value"]
 	try:
@@ -1458,7 +1504,7 @@ def processApplication(uuid_object=None, facet=None):
 
 def processCall(uuid_object=None, facet=None):
 	callId = jsonObj["@id"]	
-	callFromId = get_optional_string_attribute(facet, "uco-observable:from", '')
+	callFromId = get_optional_dict_attribute(facet, "uco-observable:from", {})
 	callFrom = "-"
 	if callFromId:
 		callFromId = callFromId["@id"]
@@ -1467,8 +1513,9 @@ def processCall(uuid_object=None, facet=None):
 				callFrom = a["uco-observable:phoneAccount"] + " / " + \
 					a["uco-observable:accountIdentifier"]
 				break
-	callToId = get_optional_string_attribute(facet, "uco-observable:to", '')
+	callToId = get_optional_dict_attribute(facet, "uco-observable:to", {})
 	if callToId:
+		callToId = facet["uco-observable:to"]["@id"]
 		callTo = "-"
 		if isinstance(callToId, dict):
 			for a in accounts:
@@ -1485,13 +1532,14 @@ def processCall(uuid_object=None, facet=None):
 						break
 
 	callApplication = "-"
-	callApplicationId = facet["uco-observable:application"].get("@id", "-")
-	if callApplicationId != "-":
+	callApplicationId = get_optional_dict_attribute(facet, "uco-observable:application", {})
+	if callApplicationId:
+		callApplicationId = facet["uco-observable:application"]["@id"]
 		for a in applications:
 			if a["@id"] == callApplicationId:
 				callApplication = a["uco-core:name"]
-	callStartTime = facet.get("uco-observable:startTime", "-")
-	if callStartTime != "-":
+	callStartTime = get_optional_dict_attribute(facet, "uco-observable:startTime", {})
+	if callStartTime:
 		callStartTime = facet["uco-observable:startTime"]["@value"]
 	callDuration = get_optional_integer_attribute(facet, "uco-observable:duration", "-")
 	try:
@@ -1510,13 +1558,13 @@ def processCall(uuid_object=None, facet=None):
 
 
 def processCalendar(uuid_object=None, facet=None):
-	calendarSubject = facet.get("uco-observable:subject", "-")
-	calendarRepeatInterval = facet.get("uco-observable:recurrence", "-")
-	calendarStatus = facet.get("uco-observable:eventStatus", "-")
-	calendarStartTime = facet.get("uco-observable:startTime", None)
+	calendarSubject = get_optional_string_attribute(facet, "uco-observable:subject", "")
+	calendarRepeatInterval = get_optional_string_attribute(facet, "uco-observable:recurrence", "")
+	calendarStatus = get_optional_string_attribute(facet, "uco-observable:eventStatus", "")
+	calendarStartTime = get_optional_dict_attribute(facet, "uco-observable:startTime", {})
 	if calendarStartTime:
 		calendarStartTime = facet["uco-observable:startTime"]["@value"]
-	calendarEndTime = facet.get("uco-observable:endTime", None)
+	calendarEndTime = get_optional_dict_attribute(facet, "uco-observable:endTime", {})
 	if calendarEndTime:
 		calendarEndTime = facet["uco-observable:endTime"]["@value"]
 	try:
@@ -1536,21 +1584,26 @@ def processCalendar(uuid_object=None, facet=None):
 
 def processEmailMessage(jsonObj, facet):
 	emailId = jsonObj["@id"]
-	emailSentTime = get_optional_string_attribute(facet, "uco-observable:sentTime", '')
+	emailSentTime = get_optional_dict_attribute(facet, "uco-observable:sentTime", {})
 	if emailSentTime:
 		emailSentTime = facet["uco-observable:sentTime"]["@value"]
 	
-	emailFromId = facet["uco-observable:from"]["@id"]
-	emailFrom = ""	
-	emailToId = facet["uco-observable:to"]
+	emailFromId = get_optional_dict_attribute(facet, "uco-observable:from", {})
+	if emailFromId:
+		emailFromId = facet["uco-observable:from"]["@id"]
+	
+	emailFrom = ""
+	emailToId = get_optional_list_attribute(facet, "uco-observable:to", [])
+	if emailToId:
+		emailToId = facet["uco-observable:to"]
 	emailTo = ""
-	emailCcId = get_optional_string_attribute(facet, "uco-observable:cc", '')
+	emailCcId = get_optional_list_attribute(facet, "uco-observable:cc", [])
 	if emailCcId:
-		emailCcId = []
+		emailCcId = facet["uco-observable:cc"]
 	emailCc = ""
-	emailBccId = get_optional_string_attribute(facet, "uco-observable:bcc", '')
+	emailBccId = get_optional_list_attribute(facet, "uco-observable:bcc", [])
 	if emailBccId:
-		emailBccId = []
+		emailBccId = facet["uco-observable:bcc"]
 	emailBcc = ""
 	emailBody = get_optional_string_attribute(facet, "uco-observable:body", "")
 	emailSubject = get_optional_string_attribute(facet, "uco-observable:subject", "")
@@ -1719,16 +1772,18 @@ def processWebBookmark(jsonObj, facet):
 	webApp = ""
 	webUrl = ""
 	webPath = ""
-	browserlId = facet["uco-observable:application"]["@id"]
-	for a in applications:
-		if a["@id"] == browserlId:
-			webApp = a["uco-core:name"]
+	browserId = get_optional_dict_attribute(facet, "uco-observable:application", {})
+	if browserId:
+		browserId = facet["uco-observable:application"]["@id"]
+		for a in applications:
+			if a["@id"] == browserId:
+				webApp = a["uco-core:name"]
 	webCreatedTime = get_optional_string_attribute(facet, "uco-observable:observableCreatedTime", '')
 	if webCreatedTime:
 		webCreatedTime = facet["uco-observable:observableCreatedTime"]["@value"]
-	webUrlId = get_optional_string_attribute(facet, "uco-observable:urlTargeted", '')
+	webUrlId = get_optional_dict_attribute(facet, "uco-observable:urlTargeted", {})
 	if webUrlId:
-		webUrlId = webUrlId["@id"]
+		webUrlId = facet["uco-observable:urlTargeted"]["@id"]
 		for u in webURLs:
 			if u["@id"] == webUrlId:
 				webUrl = u["uco-observable:url"]
@@ -1770,11 +1825,11 @@ def processURLHistory(jsonObj, facet):
 			print (e)
 			return
 		return
-	browserlId = get_optional_string_attribute(facet, "uco-observable:browserInformation", '')
-	if browserlId:
-		browserlId = facet["uco-observable:browserInformation"]["@id"]
+	browserId = get_optional_dict_attribute(facet, "uco-observable:browserInformation", {})
+	if browserId:
+		browserId = facet["uco-observable:browserInformation"]["@id"]
 		for a in applications:
-			if a["@id"] == browserlId:
+			if a["@id"] == browserId:
 				webApp = a["uco-core:name"]
 	else:
 		webApp = "-"
@@ -1784,7 +1839,7 @@ def processURLHistory(jsonObj, facet):
 	lastVisit = get_optional_string_attribute(facet["uco-observable:urlHistoryEntry"][0], "uco-observable:lastVisit", '')
 	if lastVisit:
 		lastVisit = facet["uco-observable:urlHistoryEntry"][0]["uco-observable:lastVisit"]["@value"]
-	webUrlId = get_optional_string_attribute(facet["uco-observable:urlHistoryEntry"][0], "uco-observable:url", '')
+	webUrlId = get_optional_dict_attribute(facet["uco-observable:urlHistoryEntry"][0], "uco-observable:url", {})
 	webUrl = "-"
 	if webUrlId:
 		webUrlId = webUrlId["@id"]
@@ -1898,9 +1953,9 @@ if __name__ == '__main__':
 			nObjects +=1
 			uuid_object = jsonObj['@id']
 			print(f"{C_GREEN} Observable n. {str(nObjects)} - uuid={uuid_object}", end='\r')
-			dataFacets = jsonObj.get("uco-core:hasFacet", None)
+			dataFacets = get_optional_list_attribute(jsonObj, "uco-core:hasFacet", [])
 			if not dataFacets:
-				observableType = jsonObj.get("@type", None)
+				observableType = get_optional_string_attribute(jsonObj, "@type", "")
 				# Only the ObservableRelationship is considered.
 				# Others (i.e. uco-identity:Identity, case-investigation:InvestigativeAction,
 				# uco-tool:Tool, uco-identity:Organization, uco-role:Role,
@@ -1918,7 +1973,10 @@ if __name__ == '__main__':
 					dataFacets = [dataFacets]
 
 				for facet in dataFacets:
-					objectType = facet.get("@type", None)
+					if isinstance(facet["@type"], str):
+						objectType = get_optional_string_attribute(facet, "@type", "")
+					else:
+						objectType = facet["@type"][0] # SocialMediaActivityFacet
 					if objectType:
 						#	print(f"objectType={objectType}")
 						if objectType == "uco-observable:MessageFacet":
