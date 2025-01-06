@@ -16,9 +16,9 @@
 
 from typing import Union
 
-# Define Python type for JSON-LD.  This is to help distinguish between
+# Define Python type for JSON-LD. This is to help distinguish between
 # general dictionaries and JSON-LD data.
-# Note: This type is slightly more strict than a general JSON type.  In
+# Note: This type is slightly more strict than a general JSON type. In
 # particular, float is intentionally not included, to prevent confusion
 # in type conversions between JSON-LD and Python.
 JSONLD = Union[
@@ -106,13 +106,13 @@ def get_optional_string_attribute(data: dict[str, JSONLD], property: str, defaul
 		return return_value
 	raise TypeError("Unexpected type for property %r: %r." % (property, type(return_value)))
 
-def get_optional_dict_attribute(data: dict[str, JSONLD], property: str, default_value: dict) -> str:
+def get_optional_dict_attribute(data: dict[str, JSONLD], property: str, default_value: dict) -> dict:
 	return_value: JSONLD = get_attribute(data, property, default_value)
 	if isinstance(return_value, dict):
 		return return_value
 	raise TypeError("Unexpected type for property %r: %r." % (property, type(return_value)))
 
-def get_optional_list_attribute(data: list[str, JSONLD], property: str, default_value: list) -> str:
+def get_optional_list_attribute(data: dict[str, JSONLD], property: str, default_value: list) -> list:
 	return_value: JSONLD = get_attribute(data, property, default_value)
 	if isinstance(return_value, list):
 		return return_value

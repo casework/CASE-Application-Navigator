@@ -1409,7 +1409,7 @@ def processSocialMediaActivities(jsonObj, facet):
 		print (e)
 
 
-def processWirelessNetwork(jsonObj: dict[str, JSONLD], facet: dict[str, JSONLD]) -> None:
+def processWirelessNetwork(jsonObj, facet) -> None:
 	assert isinstance(jsonObj["@id"], str), "Anonymous object found in CASE JSON-LD data."
 	wId = jsonObj["@id"]
 	wSsid = get_optional_string_attribute(facet, "uco-observable:ssid", '')
@@ -1973,60 +1973,63 @@ if __name__ == '__main__':
 					dataFacets = [dataFacets]
 
 				for facet in dataFacets:
-					if isinstance(facet["@type"], str):
-						objectType = get_optional_string_attribute(facet, "@type", "")
+					assert isinstance(facet, dict)
+					facet_type = facet["@type"]
+					if isinstance(facet_type, str):
+						objectType = facet_type
+					elif isinstance(facet_type, list):
+						objectType = facet_type[0] # SocialMediaActivityFacet
 					else:
-						objectType = facet["@type"][0] # SocialMediaActivityFacet
-					if objectType:
-						#	print(f"objectType={objectType}")
-						if objectType == "uco-observable:MessageFacet":
-							processMessage(uuid_object=uuid_object, facet=facet)
-						elif objectType == "uco-observable:SMSMessageFacet":
-							processMessage(uuid_object=uuid_object, facet=facet)
-						elif objectType == "uco-observable:BluetoothAddressFacet":
-							processBluetooth(uuid_object=uuid_object, facet=facet)
-						elif objectType == "uco-observable:CellSiteFacet":
-							processCellSite(uuid_object=uuid_object, facet=facet)
-						elif objectType == "uco-observable:BrowserCookieFacet":
-							processCookie(uuid_object=uuid_object, facet=facet)
-						elif objectType == "uco-location:LatLongCoordinatesFacet":
-							processCoordinate(uuid_object=uuid_object, facet=facet)
-						elif objectType == "uco-observable:MessageThreadFacet":
-							processThread(uuid_object=uuid_object, facet=facet)
-						elif objectType == "uco-observable:AccountFacet":
-							processAccount(uuid_object=uuid_object, facet=facet, kind="AccountFacet")
-						elif objectType == "uco-observable:ApplicationAccountFacet":
-							processAccount(uuid_object=uuid_object, facet=facet, kind="ApplicationAccountFacet")
-						elif objectType == "uco-observable:DigitalAccountFacet" :
-							processAccount(uuid_object=uuid_object, facet=facet, kind="DigitalAccountFacet")
-						elif objectType == "uco-observable:PhoneAccountFacet":
-							processAccount(uuid_object=uuid_object, facet=facet, kind="PhoneAccountFacet")
-						elif objectType == "uco-observable:EmailAccountFacet":
-							processEmailAccount(uuid_object=uuid_object, facet=facet)
-						elif objectType == "uco-observable:ApplicationFacet":
-							processApplication(uuid_object=uuid_object, facet=facet)
-						elif objectType == "uco-observable:EmailAddressFacet":
-							processEmailAddress(uuid_object=uuid_object, facet=facet)
-						elif objectType == "uco-observable:CalendarEntryFacet":
-							processCalendar(uuid_object=uuid_object, facet=facet)
-						elif objectType == "uco-observable:CallFacet":
-							processCall(uuid_object=uuid_object, facet=facet)
-						elif objectType == "uco-observable:EmailMessageFacet":
-							processEmailMessage(jsonObj, facet)
-						elif objectType == "uco-observable:FileFacet":
-							processFile(jsonObj, facet)
-						elif objectType == "uco-observable:URLFacet":
-							processURL(jsonObj, facet)
-						elif objectType == "uco-observable:URLHistoryFacet":
-							processURLHistory(jsonObj, facet)
-						elif objectType == "uco-observable:BrowserBookmarkFacet":
-							processWebBookmark(jsonObj, facet)
-						elif objectType == "uco-observable:WirelessNetworkConnectionFacet":
-							processWirelessNetwork(jsonObj, facet)
-						elif objectType == "drafting:SocialMediaActivityFacet":
-							processSocialMediaActivities(jsonObj, facet)
-						elif objectType == "uco-observable:EventRecordFacet":
-							processEvents(jsonObj, facet)
+						raise TypeError("Unexpected type for property %r: %r." % (facet_type, type(facet_type)))
+					# print(f"objectType={objectType}")
+					if objectType == "uco-observable:MessageFacet":
+						processMessage(uuid_object=uuid_object, facet=facet)
+					elif objectType == "uco-observable:SMSMessageFacet":
+						processMessage(uuid_object=uuid_object, facet=facet)
+					elif objectType == "uco-observable:BluetoothAddressFacet":
+						processBluetooth(uuid_object=uuid_object, facet=facet)
+					elif objectType == "uco-observable:CellSiteFacet":
+						processCellSite(uuid_object=uuid_object, facet=facet)
+					elif objectType == "uco-observable:BrowserCookieFacet":
+						processCookie(uuid_object=uuid_object, facet=facet)
+					elif objectType == "uco-location:LatLongCoordinatesFacet":
+						processCoordinate(uuid_object=uuid_object, facet=facet)
+					elif objectType == "uco-observable:MessageThreadFacet":
+						processThread(uuid_object=uuid_object, facet=facet)
+					elif objectType == "uco-observable:AccountFacet":
+						processAccount(uuid_object=uuid_object, facet=facet, kind="AccountFacet")
+					elif objectType == "uco-observable:ApplicationAccountFacet":
+						processAccount(uuid_object=uuid_object, facet=facet, kind="ApplicationAccountFacet")
+					elif objectType == "uco-observable:DigitalAccountFacet" :
+						processAccount(uuid_object=uuid_object, facet=facet, kind="DigitalAccountFacet")
+					elif objectType == "uco-observable:PhoneAccountFacet":
+						processAccount(uuid_object=uuid_object, facet=facet, kind="PhoneAccountFacet")
+					elif objectType == "uco-observable:EmailAccountFacet":
+						processEmailAccount(uuid_object=uuid_object, facet=facet)
+					elif objectType == "uco-observable:ApplicationFacet":
+						processApplication(uuid_object=uuid_object, facet=facet)
+					elif objectType == "uco-observable:EmailAddressFacet":
+						processEmailAddress(uuid_object=uuid_object, facet=facet)
+					elif objectType == "uco-observable:CalendarEntryFacet":
+						processCalendar(uuid_object=uuid_object, facet=facet)
+					elif objectType == "uco-observable:CallFacet":
+						processCall(uuid_object=uuid_object, facet=facet)
+					elif objectType == "uco-observable:EmailMessageFacet":
+						processEmailMessage(jsonObj, facet)
+					elif objectType == "uco-observable:FileFacet":
+						processFile(jsonObj, facet)
+					elif objectType == "uco-observable:URLFacet":
+						processURL(jsonObj, facet)
+					elif objectType == "uco-observable:URLHistoryFacet":
+						processURLHistory(jsonObj, facet)
+					elif objectType == "uco-observable:BrowserBookmarkFacet":
+						processWebBookmark(jsonObj, facet)
+					elif objectType == "uco-observable:WirelessNetworkConnectionFacet":
+						processWirelessNetwork(jsonObj, facet)
+					elif objectType == "drafting:SocialMediaActivityFacet":
+						processSocialMediaActivities(jsonObj, facet)
+					elif objectType == "uco-observable:EventRecordFacet":
+						processEvents(jsonObj, facet)
 		process_id_messages()
 		process_id_cookies()
 		process_id_email_accounts()
