@@ -22,7 +22,7 @@ from PyQt5.QtGui import *
 from PyQt5 import QtCore
 #import logging
 
-from lib import JSONLD, get_attribute, get_optional_integer_attribute, \
+from .lib import JSONLD, get_attribute, get_optional_integer_attribute, \
 						get_optional_string_attribute, get_optional_dict_attribute, \
 						get_optional_list_attribute
 
@@ -1085,7 +1085,7 @@ def processRelationConnectedTo(jsonObj):
 			{
 				"uco-core:source":id_connected_source,
 				"uco-core:target":id_connected_target,
-				"uco-observable:starTime": startTime,
+				"uco-observable:startTime": startTime,
 				"uco-observable:endTime": endTime
 			})
 	except Exception as e:
@@ -1975,9 +1975,11 @@ if __name__ == '__main__':
 				for facet in dataFacets:
 					assert isinstance(facet, dict)
 					facet_type = facet["@type"]
+					objectType: str
 					if isinstance(facet_type, str):
 						objectType = facet_type
 					elif isinstance(facet_type, list):
+						assert isinstance(facet_type[0], str)
 						objectType = facet_type[0] # SocialMediaActivityFacet
 					else:
 						raise TypeError("Unexpected type for property %r: %r." % (facet_type, type(facet_type)))
