@@ -54,4 +54,4 @@ jobs:
         poetry run mypy --strict case_viewer/lib.py
         poetry run pytest --doctest-modules case_viewer/lib.py
         poetry run mypy case_viewer/case_viewer.py
-        poetry run case_viewer/case_viewer.py --dry-run examples/WirelessNetworkConnection.json
+        poetry run python3 case_viewer/case_viewer.py --dry-run examples/WirelessNetworkConnection.json
