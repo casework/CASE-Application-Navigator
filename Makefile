@@ -19,20 +19,32 @@ SHELL := /bin/bash
 all: \
   check-examples
 	source venv/bin/activate \
-	  && python3 case_viewer/case_viewer.py \
+	  && case_viewer \
 	    examples/WirelessNetworkConnection.json
 
 .PHONY: \
   check-examples
 
-.mypy.done.log: \
+.dry_run.done.log: \
+  .pytest.done.log
+	source venv/bin/activate \
+	  && case_viewer \
+	    --dry-run \
+	    examples/WirelessNetworkConnection.json
+	touch $@
+
+.mypy_strict.done.log: \
   .venv.done.log \
-  case_viewer/case_viewer.py \
   case_viewer/lib.py
 	source venv/bin/activate \
 	  && poetry run mypy \
 	    --strict \
 	    case_viewer/lib.py
+	touch $@
+
+.mypy.done.log: \
+  .mypy_strict.done.log \
+  case_viewer/case_viewer.py
 	source venv/bin/activate \
 	  && poetry run mypy \
 	    case_viewer/case_viewer.py
@@ -64,7 +76,7 @@ all: \
 	touch $@
 
 check: \
-  .pytest.done.log \
+  .dry_run.done.log \
   check-examples
 
 check-examples: \

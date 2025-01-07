@@ -106,13 +106,13 @@ def get_optional_string_attribute(data: dict[str, JSONLD], property: str, defaul
 		return return_value
 	raise TypeError("Unexpected type for property %r: %r." % (property, type(return_value)))
 
-def get_optional_dict_attribute(data: dict[str, JSONLD], property: str, default_value: dict) -> dict:
+def get_optional_dict_attribute(data: dict[str, JSONLD], property: str, default_value: dict[str, JSONLD]) -> dict[str, JSONLD]:
 	return_value: JSONLD = get_attribute(data, property, default_value)
 	if isinstance(return_value, dict):
 		return return_value
 	raise TypeError("Unexpected type for property %r: %r." % (property, type(return_value)))
 
-def get_optional_list_attribute(data: dict[str, JSONLD], property: str, default_value: list) -> list:
+def get_optional_list_attribute(data: dict[str, JSONLD], property: str, default_value: list[JSONLD]) -> list[JSONLD]:
 	return_value: JSONLD = get_attribute(data, property, default_value)
 	if isinstance(return_value, list):
 		return return_value
