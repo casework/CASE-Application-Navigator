@@ -12,6 +12,7 @@
 #
 # We would appreciate acknowledgement if the software is used.
 
+import argparse
 import json
 import codecs
 import sys
@@ -20,7 +21,7 @@ from typing import Optional, Union, List, Dict
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5 import QtCore
-#import logging
+import logging
 
 from .lib import JSONLD, get_attribute, get_optional_integer_attribute, \
 						get_optional_string_attribute, get_optional_dict_attribute, \
@@ -1919,16 +1920,27 @@ if __name__ == '__main__':
 	webSearchTerm: list[dict[str, str]] = []
 	webBookmark: list[dict[str, str]] = []
 
+	parser = argparse.ArgumentParser()
+	parser.add_argument("--debug", action="store_true")
+	parser.add_argument("--dry-run", action="store_true", help="Run application, exiting without initiating GUI.")
+	parser.add_argument("input_jsonld")
+	args = parser.parse_args()
+
+	logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
+
 #--- Read input file in CASE-JSON format
 	try:
-		f = codecs.open(sys.argv[1], 'r', encoding='utf-8')
+		f = codecs.open(args.input_jsonld, 'r', encoding='utf-8')
 	except Exception as e:
-		print(C_RED + '\n' + "ERROR in trying to open the file " + sys.argv[1])
+		print(C_RED + '\n' + "ERROR in trying to open the file " + args.input_jsonld)
 		print (e)
 		sys.exit('Open file failed.')
 	try:
 		print(C_CYAN + "Load JSON structure, it might take some time, please wait ...\n")
 		json_obj = json.load(f)
+		if args.dry_run:
+			logging.info("Exiting dry run.")
+			sys.exit("Exit dry run.")
 		app = QApplication([])
 		_widget=QWidget()
 		msgBox = QMessageBox()
@@ -2212,6 +2224,6 @@ if __name__ == '__main__':
 #--- Set the UI layout
 	_view = view(treeData, tableData)
 	_view.setGeometry(50, 50, 1400, 800)
-	_view.setWindowTitle('Cyber items view - ' + sys.argv[1] + ' (n. Observables: ' + number_with_dots(nObjects) + ')')
+	_view.setWindowTitle('Cyber items view - ' + args.input_jsonld + ' (n. Observables: ' + number_with_dots(nObjects) + ')')
 	_view.show()
 	sys.exit(app.exec_())

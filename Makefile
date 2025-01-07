@@ -25,6 +25,14 @@ all: \
 .PHONY: \
   check-examples
 
+.dry_run.done.log: \
+  .pytest.done.log
+	source venv/bin/activate \
+	  && python3 case_viewer/case_viewer.py \
+	    --dry-run \
+	    examples/WirelessNetworkConnection.json
+	touch $@
+
 .mypy.done.log: \
   .venv.done.log \
   case_viewer/case_viewer.py \
@@ -64,7 +72,7 @@ all: \
 	touch $@
 
 check: \
-  .pytest.done.log \
+  .dry_run.done.log \
   check-examples
 
 check-examples: \
