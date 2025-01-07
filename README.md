@@ -25,11 +25,11 @@ The application relies on Poetry as dependency manager, and all dependencies are
 
 ## Usage
 
-> *CASEviewer.py JSON_INPUT*
+> `case_viewer JSON_INPUT`
 
 where:
 
-* JSON_INPUT is the file to be processed.
+* `JSON_INPUT` is the file to be processed.
 
 For those with `make` available (e.g. in a POSIX command line environment), `make` will run enough from a fresh `git clone` to set up a demonstration call of the viewer against an [example JSON-LD file](examples/WirelessNetworkConnection.json).
 

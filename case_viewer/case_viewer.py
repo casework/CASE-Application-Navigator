@@ -294,6 +294,7 @@ class view(QWidget):
 
 
 	def buildDataWirelessNet(self, idObject: str) -> list[list[str]]:
+		global wireless_net
 		tData = []
 		if idObject == ':WirelessNet':
 			self.headers = ["SSID", "BSID"]
@@ -1874,51 +1875,54 @@ def number_with_dots(n: Union[int, str]) -> str:
 	else:
 		raise TypeError('Parameter must be either integer or string')
 
-if __name__ == '__main__':
 #--- Gobal variables
+chatMessages: list[dict[str, str]] = []
+chatThreads: list[dict[str, str]] = []
+#chatMessageAttachments = []
+cookies: list[dict[str, str]] = []
+geo_coordinates: list[dict[str, str]] = []
+cell_sites: list[dict[str, str]] = []
+bluetooths: list[dict[str, str]] = []
+searched_items: list[dict[str, str]] = []
+social_media_activities: list[dict[str, str]] = []
+events: list[dict[str, str]] = []
+relationAttachmentsTo: list[dict[str, str]] = []
+relationMappedBy: list[dict[str, str]] = []
+relationConnectedTo: list[dict[str, str]] = []
+smsMessages: list[dict[str, str]] = []
+accounts: list[dict[str, str]] = []
+emailAddresses: list[dict[str, str]] = []
+emailAccounts: list[dict[str, str]] = []
+applications: list[dict[str, str]] = []
+phoneCalls: list[dict[str, str]] = []
+calendars: list[dict[str, str]] = []
+emailMessages: list[dict[str, str]] = []
+filesUncategorized: list[dict[str, str]] = []
+filesImage: list[dict[str, str]] = []
+filesAudio: list[dict[str, str]] = []
+filesText: list[dict[str, str]] = []
+filesPDF: list[dict[str, str]] = []
+filesWord: list[dict[str, str]] = []
+filesRTF: list[dict[str, str]] = []
+filesVideo: list[dict[str, str]] = []
+filesArchive: list[dict[str, str]] = []
+filesDatabase: list[dict[str, str]] = []
+filesApplication: list[dict[str, str]] = []
+webURLs: list[dict[str, str]] = []
+webURLHistory: list[dict[str, str]] = []
+webSearchTerm: list[dict[str, str]] = []
+webBookmark: list[dict[str, str]] = []
+wireless_net: list[dict[str, str]] = []
+
+tableData: list[list[str]] = [[]]
+treeData: list[dict[str,str]] = []
+
+def main():
 	C_GREEN = '\033[32m'
 	C_RED = '\033[31m'
 	C_BLACK = '\033[0m'
 	C_CYAN = '\033[36m'
 	EMPTY_DATA = "1900-01-01T00:00:00"
-
-	chatThreads: list[dict[str, str]] = []
-	chatMessages: list[dict[str, str]] = []
-	#chatMessageAttachments = []
-	cookies: list[dict[str, str]] = []
-	geo_coordinates: list[dict[str, str]] = []
-	cell_sites: list[dict[str, str]] = []
-	bluetooths: list[dict[str, str]] = []
-	searched_items: list[dict[str, str]] = []
-	social_media_activities: list[dict[str, str]] = []
-	events: list[dict[str, str]] = []
-	wireless_net: list[dict[str, str]] = []
-	relationAttachmentsTo: list[dict[str, str]] = []
-	relationMappedBy: list[dict[str, str]] = []
-	relationConnectedTo: list[dict[str, str]] = []
-	smsMessages: list[dict[str, str]] = []
-	accounts: list[dict[str, str]] = []
-	emailAddresses: list[dict[str, str]] = []
-	emailAccounts: list[dict[str, str]] = []
-	applications: list[dict[str, str]] = []
-	phoneCalls: list[dict[str, str]] = []
-	calendars: list[dict[str, str]] = []
-	emailMessages: list[dict[str, str]] = []
-	filesUncategorized: list[dict[str, str]] = []
-	filesImage: list[dict[str, str]] = []
-	filesAudio: list[dict[str, str]] = []
-	filesText: list[dict[str, str]] = []
-	filesPDF: list[dict[str, str]] = []
-	filesWord: list[dict[str, str]] = []
-	filesRTF: list[dict[str, str]] = []
-	filesVideo: list[dict[str, str]] = []
-	filesArchive: list[dict[str, str]] = []
-	filesDatabase: list[dict[str, str]] = []
-	filesApplication: list[dict[str, str]] = []
-	webURLs: list[dict[str, str]] = []
-	webURLHistory: list[dict[str, str]] = []
-	webSearchTerm: list[dict[str, str]] = []
-	webBookmark: list[dict[str, str]] = []
 
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--debug", action="store_true")
@@ -1940,7 +1944,7 @@ if __name__ == '__main__':
 		json_obj = json.load(f)
 		if args.dry_run:
 			logging.info("Exiting dry run.")
-			sys.exit("Exit dry run.")
+			sys.exit(0)
 		app = QApplication([])
 		_widget=QWidget()
 		msgBox = QMessageBox()
@@ -2057,8 +2061,6 @@ if __name__ == '__main__':
 	f.close()
 	print(C_CYAN + "\n\nEnd Observables processing!" + C_BLACK + "\n\n")
 
-	tableData: list[list[str]] = [[]]
-	treeData: list[dict[str,str]] = []
 	i = 1
 	totMessages = 0
 
@@ -2227,3 +2229,7 @@ if __name__ == '__main__':
 	_view.setWindowTitle('Cyber items view - ' + args.input_jsonld + ' (n. Observables: ' + number_with_dots(nObjects) + ')')
 	_view.show()
 	sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+	main()
