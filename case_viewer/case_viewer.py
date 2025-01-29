@@ -59,8 +59,11 @@ class view(QWidget):
 		self.table.setVisible(True)
 		self.tableData = tableData
 		self.treeData = treeData
+		
+		self.font = QFont("Helvetica", pointSize=12, weight=QFont.Medium)
 
 		self.textEdit = QTextEdit()
+		self.textEdit.setFont(self.font)
 		self.textEdit.setDocumentTitle("Details")
 		self.textEdit.setHtml('<h2>Here the details will be displayed</h2>')
 
@@ -269,7 +272,6 @@ class view(QWidget):
 		tData = []
 		if idObject == ':Calls':
 			self.headers = ["From", "To", "Date", "Duration"]
-			print("phoneCall LEN: " + str(len(phoneCalls)))
 			for c in phoneCalls:
 				callDate = c["uco-observable:startTime"]
 				callDuration = c["uco-observable:duration"]
@@ -1505,7 +1507,7 @@ def processApplication(uuid_object=None, facet=None):
 
 
 def processCall(uuid_object=None, facet=None):
-	callId = jsonObj["@id"]	
+	#callId = jsonObj["@id"]
 	callFromId = get_optional_dict_attribute(facet, "uco-observable:from", {})
 	callFrom = "-"
 	if callFromId:
@@ -1547,7 +1549,7 @@ def processCall(uuid_object=None, facet=None):
 	try:
 		phoneCalls.append(
 			{
-				"@id":callId,
+				"@id":uuid_object,
 				"uco-observable:from":callFrom,
 				"uco-observable:to":callTo,
 				"uco-core:name":callApplication,
