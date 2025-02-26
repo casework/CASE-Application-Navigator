@@ -1,4 +1,5 @@
 *.log
+*.swp
 _*
 .DS_Store
 venv
