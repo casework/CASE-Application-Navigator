@@ -1,4 +1,4 @@
 *.log
 _*
-.DS_Store/*
+.DS_Store
 venv
