@@ -133,9 +133,9 @@ pyqt5==5.15.10 ; python_version >= "3.9" and python_version < "4.0" \
     --hash=sha256:b89478d16d4118664ff58ed609e0a804d002703c9420118de7e4e70fa1cb5486 \
     --hash=sha256:d46b7804b1b10a4ff91753f8113e5b5580d2b4462f3226288e2d84497334898a \
     --hash=sha256:ff99b4f91aa8eb60510d5889faad07116d3340041916e46c07d519f7cad344e1
-requests==2.31.0 ; python_version >= "3.9" and python_version < "4.0" \
-    --hash=sha256:58cd2187c01e70e6e26505bca751777aa9f2ee0b7f4300988b709f44e013003f \
-    --hash=sha256:942c5a758f98d790eaed1a29cb6eefc7ffb0d1cf7af05c3d2791656dbd6ad1e1
+requests==2.32.4 ; python_version >= "3.9" and python_version < "4.0" \
+    --hash=sha256:27babd3cda2a6d50b30443204ee89830707d396671944c998b5975b031ac2b2c \
+    --hash=sha256:27d0316682c8a29834d3264820024b62a36942083d52caf2f14c0591336d3422
 urllib3==2.2.1 ; python_version >= "3.9" and python_version < "4.0" \
     --hash=sha256:450b20ec296a467077128bff42b73080516e71b56ff59a60a02bef2232c4fa9d \
     --hash=sha256:d0570876c61ab9e520d776c38acbbb5b05a776d3f9ff98a5c8fd5162a444cf19
