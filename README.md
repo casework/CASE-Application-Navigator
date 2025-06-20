@@ -1,6 +1,6 @@
 ## A GUI application based on QT5 to visualise JSON-LD files complied with the UCO/CASE ontology.
 
-The JSON-LD files must be complied with the UCO/CASE version 1,3 but they are also based on the *drafting* namespace, aimed to represent artifact not included in the ontology yet. The application processes the following Artifacts:
+The JSON-LD files must be complied with the UCO/CASE version 1.4.0 but they are also based on the *drafting* namespace, aimed to represent artifact not included in the ontology yet. The application processes the following Artifacts:
 
 * ACCOUNT
 * CALL
