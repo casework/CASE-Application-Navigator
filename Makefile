@@ -69,10 +69,8 @@ all: \
 	    pip \
 	    poetry
 	source venv/bin/activate \
-	  && poetry install
-	source venv/bin/activate \
-	  && pip install \
-	    case-utils
+	  && poetry install \
+	    --with dev
 	touch $@
 
 check: \
