@@ -12,7 +12,11 @@ json5 = "^0.9.25"
 pyqt5 = "^5.15.10"
 argparse = "^1.4.0"
 
+[tool.poetry.group.dev]
+optional = true
+
 [tool.poetry.group.dev.dependencies]
+case-utils = "^0.16"
 mypy = "^1"
 pytest = "^8"
 

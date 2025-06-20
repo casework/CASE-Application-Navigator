@@ -50,7 +50,7 @@ jobs:
 
     - name: Run tests
       run: |
-        poetry install
+        poetry install --with dev
         poetry run mypy --strict case_viewer/lib.py
         poetry run pytest --doctest-modules case_viewer/lib.py
         poetry run mypy case_viewer/case_viewer.py
