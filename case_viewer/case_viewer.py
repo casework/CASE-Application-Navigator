@@ -18,14 +18,20 @@ import codecs
 import sys
 from collections import deque
 from typing import Optional, Union, List, Dict
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5 import QtCore
+from PyQt6.QtWidgets import *
+from PyQt6.QtGui import *
+from PyQt6 import QtCore
+from PyQt6.QtCore import Qt, QTimer
+
+#from PyQt5.QtWidgets import *
+#from PyQt5.QtGui import *
+#from PyQt5 import QtCore
 import logging
 
-from .lib import JSONLD, get_attribute, get_optional_integer_attribute, \
+from lib import JSONLD, get_attribute, get_optional_integer_attribute, \
 						get_optional_string_attribute, get_optional_dict_attribute, \
 						get_optional_list_attribute
+
 
 class TableModel(QtCore.QAbstractTableModel):
 	def __init__(self, data):
@@ -33,7 +39,7 @@ class TableModel(QtCore.QAbstractTableModel):
 		self._data = data
 
 	def data(self, index, role):
-		if role == QtCore.Qt.DisplayRole:
+		if role == QtCore.Qt.ItemDataRole.DisplayRole:
 			# See below for the nested-list data structure.
 			# .row() indexes into the outer list,
 			# .column() indexes into the sub-list
@@ -48,6 +54,7 @@ class TableModel(QtCore.QAbstractTableModel):
 		# the length (only works if all rows are an equal length)
 		return len(self._data[0])
 
+
 class view(QWidget):
 	def __init__(self, treeData, tableData):
 		super(view, self).__init__()
@@ -59,32 +66,22 @@ class view(QWidget):
 		self.table.setVisible(True)
 		self.tableData = tableData
 		self.treeData = treeData
-		
-		self.font = QFont("Helvetica", pointSize=12, weight=QFont.Medium)
-
+		self.font = QFont("Helvetica", pointSize=12, weight=QFont.Weight.Medium)
 		self.textEdit = QTextEdit()
 		self.textEdit.setFont(self.font)
 		self.textEdit.setDocumentTitle("Details")
 		self.textEdit.setHtml('<h2>Here the details will be displayed</h2>')
-
-
 		self.modelTable = TableModel(tableData)
 		self.table.setModel(self.modelTable)
-
 		self.table.headers = []
-
-
 		grid = QGridLayout()
 		grid.setSpacing(10)
-
-		#grid.addWidget(widget, row, column, row_span, col_span)
+		# grid.addWidget(widget, riga, colonna, rowSpan, colSpan)
 		grid.addWidget(self.tree, 1, 0, 10, 4)
-		#grid.addWidget(self.table, 1, 2, 8, 8)
-		grid.addWidget(self.table, 1, 4, 10, 10)
-		grid.addWidget(self.textEdit, 1, 14, 10, 6)
+		grid.addWidget(self.table, 1, 4, 10, 6)
+		grid.addWidget(self.textEdit, 1, 14, 10, 10)
 
 		self.setLayout(grid)
-
 		self.model = QStandardItemModel()
 		self.model.setHorizontalHeaderLabels(['Cyber item'])
 		self.tree.setModel(self.model)
@@ -126,7 +123,7 @@ class view(QWidget):
 		return tree_list
 
 	def GetItem(self, item, level, tree_list):
-		if item != None:
+		if item is not None:
 			if item.hasChildren():
 				level = level + 1
 				short_name = ' '
@@ -137,7 +134,7 @@ class view(QWidget):
 					id = id + 1
 					for j in reversed([0, 1, 2]):
 						childitem = item.child(i, j)
-						if childitem != None:
+						if childitem is not None:
 							if j == 0:
 								short_name = childitem.data(0)
 							else:
@@ -159,8 +156,6 @@ class view(QWidget):
 								tree_list.append(dic)
 							self.GetItem(childitem, level, tree_list)
 				return tree_list
-
-
 
 	def buildTableData(self, idObject: str) -> list:
 		self.headers: list[str] = []
@@ -199,12 +194,9 @@ class view(QWidget):
 			tData = self.buildDataWebSearchTerm(idObject)
 		if len(tData) == 0:
 			tData = self.buildDataLocationDevice(idObject)
-
 		return tData
 
-
 	def buildDataChatMessages(self, idObject):
-
 		tData = []
 		threadFound = False
 		threadSlot = []
@@ -226,7 +218,6 @@ class view(QWidget):
 					msgDate = m["uco-observable:sentTime"]
 					msgAttachments = m["uco-observable:attachedFiles"]
 					tData.append([msgDate, msgAttachments])
-
 		return tData
 
 	def buildDataContacts(self, idObject):
@@ -241,7 +232,6 @@ class view(QWidget):
 				tData.append([accountIdentifier, accountPhone, accountDiplayName, accountApplication])
 		return tData
 
-
 	def buildDataBluetooths(self, idObject):
 		tData = []
 		if idObject == ':Bluetooths':
@@ -249,7 +239,6 @@ class view(QWidget):
 			for b in bluetooths:
 				tData.append([b["uco-observable:addressValue"]])
 		return tData
-
 
 	def buildDataCalendars(self, idObject):
 		tData = []
@@ -267,7 +256,6 @@ class view(QWidget):
 				tData.append([calendarSubject, calendarRepeatInterval, calendarStartDate, calendarEndDate, calendarStatus])
 		return tData
 
-
 	def buildDataPhoneCalls(self, idObject):
 		tData = []
 		if idObject == ':Calls':
@@ -279,7 +267,6 @@ class view(QWidget):
 				callTo = c["uco-observable:to"]
 				tData.append([callFrom, callTo, callDate, callDuration])
 		return tData
-
 
 	def buildDataCellSites(self, idObject):
 		tData = []
@@ -294,7 +281,6 @@ class view(QWidget):
 				tData.append([cellMCC, cellMNC, cellLAC, cellCID, cellType])
 		return tData
 
-
 	def buildDataWirelessNet(self, idObject: str) -> list[list[str]]:
 		global wireless_net
 		tData = []
@@ -306,7 +292,6 @@ class view(QWidget):
 				tData.append([wirelessSsid, wirelessBsid])
 		return tData
 
-
 	def buildDataSearchedItems(self, idObject):
 		tData = []
 		if idObject == ':SearchedItems':
@@ -317,7 +302,6 @@ class view(QWidget):
 				searchedValue = s["drafting:searchValue"]
 				tData.append([searchedSource, searchedTime, searchedValue])
 		return tData
-
 
 	def buildDataSocialMediaActivities(self, idObject):
 		tData = []
@@ -333,9 +317,8 @@ class view(QWidget):
 				socialName = s["drafting:authorName"]
 				socialType = s["drafting:activityType"]
 				tData.append([socialBody, socialTitle, socialDate, socialApp, socialAuthorId,
-							  socialName, socialType, socialAccountId])
+											socialName, socialType, socialAccountId])
 		return tData
-
 
 	def buildDataEvents(self, idObject):
 		tData = []
@@ -347,7 +330,6 @@ class view(QWidget):
 				eText = e["uco-observable:eventText"]
 				tData.append([eCreated, eType, eText])
 		return tData
-
 
 	def buildDataCookies(self, idObject):
 		tData = []
@@ -361,7 +343,6 @@ class view(QWidget):
 				cookieExpirationTime = c["uco-observable:expirationTime"]
 				tData.append([cookieName, cookiePath, cookieApp, cookieCreatedTime, cookieExpirationTime])
 		return tData
-
 
 	def buildDataEmailMessages(self, idObject):
 		tData = []
@@ -378,7 +359,7 @@ class view(QWidget):
 	def buildDataFiles(self, idObject):
 		tData = []
 		self.headers = ["Name", "Path", "Size"]
-		
+
 		if idObject == ':Images':
 			for f in filesImage:
 				fileName = f["uco-observable:fileName"]
@@ -457,9 +438,7 @@ class view(QWidget):
 				filePath = f["uco-observable:filePath"]
 				fileSize = f["uco-observable:fileSize"]
 				tData.append([fileName, filePath, fileSize])
-				
 		return tData
-
 
 	def buildDataSms(self, idObject):
 		tData = []
@@ -475,7 +454,6 @@ class view(QWidget):
 				tData.append([smsFrom, smsTo, smsSentTime, smsText, smsStatus])
 		return tData
 
-
 	def buildDataWebBookmarks(self, idObject):
 		tData = []
 		if idObject == ':WebBookmarks':
@@ -487,7 +465,6 @@ class view(QWidget):
 				webDate = w["uco-observable:observableCreatedTime"]
 				tData.append([webUrl, webApp, webPath, webDate])
 		return tData
-
 
 	def buildDataWebHistories(self, idObject):
 		tData = []
@@ -502,7 +479,6 @@ class view(QWidget):
 				tData.append([webUrl, webTitle, webLastVisited, webApp])
 		return tData
 
-
 	def buildDataWebSearchTerm(self, idObject):
 		tData = []
 		print(f"idObject={idObject}")
@@ -513,21 +489,19 @@ class view(QWidget):
 				tData.append([webTerm])
 		return tData
 
-
 	def buildDataLocationDevice(self, idObject):
 		tData = []
 		if idObject == ':LocationDevice':
 			self.headers = ["Latitude", "Longitude", "Start date"]
-			for l in relationMappedBy:
-				lDate = l["uco-observable:mappedByStartDate"]
-				lLat = l["uco-observable:mappedByLatitude"]
-				lLong = l["uco-observable:mappedByLongitude"]
+			for location in relationMappedBy:
+				lDate = location["uco-observable:mappedByStartDate"]
+				lLat = location["uco-observable:mappedByLatitude"]
+				lLong = location["uco-observable:mappedByLongitude"]
 				tData.append([lLat, lLong, lDate])
 		return tData
 
-
 	def select_left_bar(self, index):
-		text = index.data(QtCore.Qt.DisplayRole)
+		text = index.data(QtCore.Qt.ItemDataRole.DisplayRole)
 		threadId = ''
 		for i, dic in enumerate(treeData):
 			if dic['short_name'] == text:
@@ -618,10 +592,7 @@ class view(QWidget):
 		self.model = TableModel(self.tableData)
 		self.table.setModel(self.model)
 
-
 	def select_main_panel(self, item):
-		#text = index.data(Qt.DisplayRole)
-		#print(f"in itemTableSelected, item row={item.row()}, cyber items={self.tree_cyber_item}")
 		if item.row():
 			row = int(item.row() - 1)
 			if 'Email' in self.tree_cyber_item:
@@ -766,7 +737,6 @@ class view(QWidget):
 				self.textEdit.setHtml('<h2>Here the details of the cyber item will be displayed</h2>')
 				print("item selected is not an Email")
 
-
 	def gather_all_chats(self):
 		pos = self.tree_cyber_item.find('(')
 		idx = int((self.tree_cyber_item[7:pos])) - 1
@@ -791,7 +761,6 @@ class view(QWidget):
 			"<strong>Display name</strong> " + a["uco-observable:displayName"] + "<hr/>"
 		return html_text
 
-
 	def gather_all_calendars(self):
 		html_text="<h2>Calendars data</h2><br/>"
 		for c in calendars:
@@ -801,7 +770,6 @@ class view(QWidget):
 			"<strong>End</strong> " + str(c["uco-observable:endTime"]) + "<br/>" + \
 			"<strong>Recurrence</strong> " + str(c["uco-observable:recurrence"]) + "<hr/>"
 		return html_text
-
 
 	def gather_all_calls(self):
 		html_text="<h2>Calls data</h2><br/>"
@@ -825,7 +793,6 @@ class view(QWidget):
 				"<strong>Site type </strong> " + str(a["uco-observable:cellSiteType"]) + "<hr/>"
 		return html_text
 
-
 	def gather_all_cookies(self):
 		html_text="<h2>Cookies data</h2><br/>"
 		for item in cookies:
@@ -837,14 +804,12 @@ class view(QWidget):
 			"<strong>Expiration time </strong> " + str(item["uco-observable:expirationTime"]) + "<hr/>"
 		return html_text
 
-
 	def gather_all_device_connection(self):
 		html_text="<h2>Device connection data</h2><br/>"
 		for item in bluetooths:
 			html_text = html_text + \
 			"<strong>Address</strong> " + str(item["uco-observable:addressValue"]) + "<hr/>"
 		return html_text
-
 
 	def gather_all_emails(self):
 		html_text="<h2>Email data</h2><br/>"
@@ -859,7 +824,6 @@ class view(QWidget):
 			"<strong>Body</strong> " + str(item["uco-observable:body"]) + "<hr/>"
 		return html_text
 
-
 	def gather_all_events(self):
 		html_text="<h2>Events data</h2><br/>"
 		for item in events:
@@ -868,7 +832,6 @@ class view(QWidget):
 			"<strong>Text</strong> " + str(item["uco-observable:eventText"]) + "<br/>" + \
 			"<strong>Created time</strong> " + str(item["uco-observable:observableCreatedTime"]) + "<hr/>"
 		return html_text
-
 
 	def gather_all_files(self, type, arrayFiles):
 		html_text="<h2>" + type + " data</h2><br/>"
@@ -879,7 +842,6 @@ class view(QWidget):
 			"<strong>Size</strong> " + str(item["uco-observable:fileSize"]) + "<hr/>"
 		return html_text
 
-
 	def gather_all_locations(self):
 		html_text="<h2>Location device data</h2><br/>"
 		for item in relationMappedBy:
@@ -889,13 +851,11 @@ class view(QWidget):
 			"<strong>Longitude</strong> " + str(item["uco-observable:mappedByLongitude"]) + "<hr/>"
 		return html_text
 
-
 	def gather_data_file(self, row):
 		detail = "<strong>Name</strong> " + str(row["uco-observable:fileName"]) + "<br/>" + \
 		"<strong>Path</strong> " + str(row["uco-observable:filePath"]) + "<br/>" + \
 		"<strong>Size</strong> " + str(row["uco-observable:fileSize"]) + "<hr/>"
 		return(detail)
-
 
 	def gather_all_social_media_activities(self):
 		html_text="<h2>Social Media Activities data</h2><br/>"
@@ -911,7 +871,6 @@ class view(QWidget):
 			"<strong>Type</strong> " + str(item["drafting:activityType"]) + "<hr/>"
 		return html_text
 
-
 	def gather_all_web_histories(self):
 		html_text="<h2>Web History data</h2><br/>"
 		for item in webURLHistory:
@@ -921,7 +880,6 @@ class view(QWidget):
 			"<strong>Browser</strong> " + str(item["uco-observable:browserInformation"]) + "<br/>" + \
 			"<strong>Last visited</strong> " + str(item["uco-observable:lastVisited"]) + "<hr/>"
 		return html_text
-
 
 	def gather_all_web_bookmarks(self):
 		html_text="<h2>Web Bookmark data</h2><br/>"
@@ -933,14 +891,12 @@ class view(QWidget):
 			"<strong>Created time</strong> " + str(item["uco-observable:observableCreatedTime"]) + "<hr/>"
 		return html_text
 
-
 	def gather_all_web_search_terms(self):
 		html_text="<h2>Web Search Terms data</h2><br/>"
 		for item in webSearchTerm:
 			html_text = html_text + \
 			"<strong>Search term</strong> " + str(item["uco-observable:searchTerm"]) + "<hr/>"
 		return html_text
-
 
 	def gather_all_wireless_nets(self) -> str:
 		html_text="<h2>Wireless Network connections</h2><br/>"
@@ -949,7 +905,6 @@ class view(QWidget):
 			"<strong>SSID</strong> " + str(item["uco-observable:ssid"]) + "<br/>" + \
 			"<strong>Base station</strong> " + str(item["uco-observable:baseStation"]) + "<hr/>"
 		return html_text
-
 
 ### global funtions
 def process_id_messages():
@@ -966,7 +921,7 @@ def process_id_messages():
 					a["uco-observable:accountIdentifier"] + " / " + a["uco-observable:displayName"]
 					m["uco-observable:from"] = msg_from
 					break
-		
+
 		msg_to = []
 		if m["uco-observable:to-id"]:
 			if len(m["uco-observable:to-id"]) > 0:
@@ -977,7 +932,7 @@ def process_id_messages():
 							a["uco-observable:accountIdentifier"] + " / " + a["uco-observable:displayName"])
 							break
 				m["uco-observable:to"] = msg_to
-			
+
 	for m in smsMessages:
 		if m["uco-observable:from-id"]:
 			for a in accounts:
@@ -1004,7 +959,6 @@ def process_id_cookies():
 					c["uco-observable:cookieApp"] = a["uco-core:name"]
 					break
 
-
 def process_id_email_accounts():
 	for e in emailAccounts:
 		for a in emailAddresses:
@@ -1018,13 +972,13 @@ def process_id_email_messages():
 			if e["@id"] == m["uco-observable:fromId"]:
 				m["uco-observable:from"] = e["uco-observable:addressValue"]
 				break
-		
+
 		if len(m["uco-observable:toId"]) > 0:
 			emailToId = m["uco-observable:toId"][0]["@id"]
 			for e in emailAccounts:
 				if e["@id"] == emailToId:
 					m["uco-observable:to"] = e["uco-observable:addressValue"]
-		
+
 		if len(m["uco-observable:ccId"]) > 0:
 			emailCcId = m["uco-observable:ccId"][0]["@id"]
 			for e in emailAccounts:
@@ -1040,6 +994,7 @@ def process_id_email_messages():
 
 def process_attachments():
 	for item in chatMessages:
+		# print(f"in process_attachments, chatMessages, item={item}")
 		for attachment in relationAttachmentsTo:
 			if item["@id"] == attachment["uco-observable:attachmentTarget"]:
 				fileAttached = ''
@@ -1057,7 +1012,6 @@ def process_attachments():
 						break
 				item["uco-observable:attachedFiles"] = fileAttached
 
-
 def processRelationAttachments(jsonObj):
 	id_attachment_source = jsonObj["uco-core:source"]["@id"]
 	id_attachment_target = jsonObj["uco-core:target"]["@id"]
@@ -1071,19 +1025,18 @@ def processRelationAttachments(jsonObj):
 		print("ERROR: in appending dictionary to chatMessages")
 		print (e)
 
-
 def processRelationConnectedTo(jsonObj):
 	id_connected_source = jsonObj["uco-core:source"]["@id"]
 	id_connected_target = jsonObj["uco-core:target"]["@id"]
-	
+
 	startTime = get_optional_dict_attribute(jsonObj, "uco-observable:startTime", {})
 	if startTime:
 		startTime = jsonObj["uco-observable:startTime"]["@value"]
-	
+
 	endTime = get_optional_dict_attribute(jsonObj, "uco-observable:endTime", {})
 	if endTime:
 		endTime = jsonObj["uco-observable:endTime"]["@value"]
-	
+
 	try:
 		relationConnectedTo.append(
 			{
@@ -1095,7 +1048,6 @@ def processRelationConnectedTo(jsonObj):
 	except Exception as e:
 		print("ERROR: in appending dictionary to chatMessages")
 		print (e)
-
 
 def processRelationMappedBy(jsonObj):
 	id_mapped_by_target = jsonObj["uco-core:target"]["@id"]
@@ -1121,7 +1073,6 @@ def processRelationMappedBy(jsonObj):
 		print("ERROR: in appending dictionary to Relation Mapped_By")
 		print (e)
 
-
 def processMessage(uuid_object=None, facet=None):
 	msg_text = get_optional_string_attribute(facet, "uco-observable:messageText", '')
 	msg_app_id = get_optional_dict_attribute(facet, "uco-observable:application", {})
@@ -1131,11 +1082,11 @@ def processMessage(uuid_object=None, facet=None):
 	msg_sent_time = get_optional_dict_attribute(facet, "uco-observable:sentTime", {})
 	if msg_sent_time:
 		msg_sent_time = facet["uco-observable:sentTime"]["@value"]
-	
+
 	msg_from_id = get_optional_dict_attribute(facet, "uco-observable:from", {})
 	if msg_from_id:
 		msg_from_id = facet["uco-observable:from"]["@id"]
-	
+
 	msg_to_id = get_optional_list_attribute(facet, "uco-observable:to", [])
 	if msg_to_id:
 		msg_to_id = facet["uco-observable:to"]
@@ -1177,7 +1128,6 @@ def processMessage(uuid_object=None, facet=None):
 		print("ERROR: in appending dictionary to either ChatMessages or SMSmessages")
 		print (e)
 
-
 def processThread(uuid_object=None, facet=None):
 	thread_participants = list()
 	for p in facet["uco-observable:participant"]:
@@ -1201,7 +1151,6 @@ def processThread(uuid_object=None, facet=None):
 	except Exception as e:
 		print("ERROR: in appending dictionary to chatThreads, @id=" + uuid_object)
 		print (e)
-
 
 def processAccount(uuid_object=None, facet=None, kind=None):
 	accountFound = False
@@ -1263,7 +1212,6 @@ def processAccount(uuid_object=None, facet=None, kind=None):
 			print("ERROR: in appending dictionary to accounts")
 			print (e)
 
-
 def processEmailAddress(uuid_object=None, facet=None):
 	accountEmail = get_optional_string_attribute(facet, "uco-observable:addressValue", "")
 	try:
@@ -1276,11 +1224,10 @@ def processEmailAddress(uuid_object=None, facet=None):
 		print("ERROR: in appending dictionary to emailAddresses")
 		print (e)
 
-
 def processEmailAccount(uuid_object=None, facet=None):
 	accountEmailId = facet["uco-observable:emailAddress"]["@id"]
 	addressEmail = "-"
-	
+
 	try:
 		emailAccounts.append(
 			{
@@ -1291,7 +1238,6 @@ def processEmailAccount(uuid_object=None, facet=None):
 	except Exception as e:
 		print("ERROR: in appending dictionary to emailAddresses")
 		print (e)
-
 
 def processBluetooth(uuid_object=None, facet=None):
 	bt_address = get_optional_string_attribute(facet, "uco-observable:addressValue", "")
@@ -1305,7 +1251,6 @@ def processBluetooth(uuid_object=None, facet=None):
 	except Exception as e:
 		print("ERROR: in appending dictionary to Bluetooth Connecitons")
 		print (e)
-
 
 def processCellSite(uuid_object=None, facet=None):
 	cellMcc = get_optional_string_attribute(facet, "uco-observable:cellSiteCountryCode", "")
@@ -1327,7 +1272,6 @@ def processCellSite(uuid_object=None, facet=None):
 		print("ERROR: in appending dictionary to Cell Site")
 		print (e)
 
-
 def processEvents(jsonObj, facet):
 	eventId = jsonObj["@id"]
 	eventCreated = get_optional_dict_attribute(facet, "uco-observable:observableCreatedTime", {})
@@ -1346,7 +1290,6 @@ def processEvents(jsonObj, facet):
 	except Exception as e:
 		print("ERROR: in appending dictionary to Event Record")
 		print (e)
-
 
 def processSearchedItems(jsonObj, facet):
 	searchId = jsonObj["@id"]
@@ -1372,7 +1315,6 @@ def processSearchedItems(jsonObj, facet):
 	except Exception as e:
 		print("ERROR: in appending dictionary to SearchedItems")
 		print (e)
-
 
 def processSocialMediaActivities(jsonObj, facet):
 	socialId = jsonObj["@id"]
@@ -1412,7 +1354,6 @@ def processSocialMediaActivities(jsonObj, facet):
 		print("ERROR: in appending dictionary to Social Media Activity")
 		print (e)
 
-
 def processWirelessNetwork(jsonObj, facet) -> None:
 	assert isinstance(jsonObj["@id"], str), "Anonymous object found in CASE JSON-LD data."
 	wId = jsonObj["@id"]
@@ -1429,7 +1370,6 @@ def processWirelessNetwork(jsonObj, facet) -> None:
 		print("ERROR: in appending dictionary to Wireless Network")
 		print (e)
 
-
 def processCookie(uuid_object=None, facet=None):
 	cookieAppId = get_optional_dict_attribute(facet, "uco-observable:application", {})
 	if cookieAppId:
@@ -1437,7 +1377,7 @@ def processCookie(uuid_object=None, facet=None):
 	cookieApp = "-"
 	cookieName = get_optional_string_attribute(facet, "uco-observable:cookieName", '')
 	cookiePath = get_optional_string_attribute(facet, "uco-observable:cookiePath", '')
-	
+
 	cookieCreatedTime = get_optional_dict_attribute(facet, "uco-observable:observableCreatedTime", {})
 	if cookieCreatedTime:
 		cookieCreatedTime = facet["uco-observable:observableCreatedTime"]["@value"]
@@ -1445,12 +1385,11 @@ def processCookie(uuid_object=None, facet=None):
 	cookieLastAccessedTime = get_optional_dict_attribute(facet, "uco-observable:accessedTime", {})
 	if cookieLastAccessedTime:
 		cookieLastAccessedTime = facet["uco-observable:accessedTime"]["@value"]
-	
+
 	cookieExpirationTime = get_optional_dict_attribute(facet, "uco-observable:expirationTime", {})
 	if cookieExpirationTime:
 		cookieExpirationTime = facet["uco-observable:expirationTime"]["@value"]
-	
-		
+
 	try:
 		cookies.append(
 			{
@@ -1466,7 +1405,6 @@ def processCookie(uuid_object=None, facet=None):
 	except Exception as e:
 		print("ERROR: in appending dictionary to cookies")
 		print (e)
-
 
 def processCoordinate(uuid_object=None, facet=None):
 	coordinateLat = get_optional_dict_attribute(facet, "uco-location:latitude", {})
@@ -1490,7 +1428,6 @@ def processCoordinate(uuid_object=None, facet=None):
 		print("ERROR: in appending dictionary to geo coordinate")
 		print (e)
 
-
 def processApplication(uuid_object=None, facet=None):
 	applicationName = get_optional_string_attribute(facet, "uco-core:name", "")
 	if applicationName:
@@ -1504,7 +1441,6 @@ def processApplication(uuid_object=None, facet=None):
 	except Exception as e:
 		print("ERROR: in appending dictionary to applications")
 		print (e)
-
 
 def processCall(uuid_object=None, facet=None):
 	#callId = jsonObj["@id"]
@@ -1560,7 +1496,6 @@ def processCall(uuid_object=None, facet=None):
 		print("ERROR: in appending dictionary to Call")
 		print (e)
 
-
 def processCalendar(uuid_object=None, facet=None):
 	calendarSubject = get_optional_string_attribute(facet, "uco-observable:subject", "")
 	calendarRepeatInterval = get_optional_string_attribute(facet, "uco-observable:recurrence", "")
@@ -1585,17 +1520,16 @@ def processCalendar(uuid_object=None, facet=None):
 		print("ERROR: in appending dictionary to Calendar")
 		print (e)
 
-
 def processEmailMessage(jsonObj, facet):
 	emailId = jsonObj["@id"]
 	emailSentTime = get_optional_dict_attribute(facet, "uco-observable:sentTime", {})
 	if emailSentTime:
 		emailSentTime = facet["uco-observable:sentTime"]["@value"]
-	
+
 	emailFromId = get_optional_dict_attribute(facet, "uco-observable:from", {})
 	if emailFromId:
 		emailFromId = facet["uco-observable:from"]["@id"]
-	
+
 	emailFrom = ""
 	emailToId = get_optional_list_attribute(facet, "uco-observable:to", [])
 	if emailToId:
@@ -1611,7 +1545,7 @@ def processEmailMessage(jsonObj, facet):
 	emailBcc = ""
 	emailBody = get_optional_string_attribute(facet, "uco-observable:body", "")
 	emailSubject = get_optional_string_attribute(facet, "uco-observable:subject", "")
-	
+
 	try:
 		emailMessages.append(
 			{
@@ -1631,7 +1565,6 @@ def processEmailMessage(jsonObj, facet):
 	except Exception as e:
 		print("ERROR: in appending dictionary to emailMessage")
 		print (e)
-
 
 def processFile(jsonObj, facet):
 	fileId = jsonObj["@id"]
@@ -1755,7 +1688,6 @@ def processFile(jsonObj, facet):
 		print("ERROR: in appending dictionary to file")
 		print (e)
 
-
 def processURL(jsonObj, facet):
 	webId = jsonObj["@id"]
 	webUrl = facet["uco-observable:fullValue"]
@@ -1768,7 +1700,6 @@ def processURL(jsonObj, facet):
 	except Exception as e:
 		print("ERROR: in appending dictionary to webURL")
 		print (e)
-
 
 def processWebBookmark(jsonObj, facet):
 	webId = jsonObj["@id"]
@@ -1807,7 +1738,6 @@ def processWebBookmark(jsonObj, facet):
 	except Exception as e:
 		print("ERROR: in appending dictionary to Web Bookmark")
 		print (e)
-
 
 def processURLHistory(jsonObj, facet):
 	webId = jsonObj["@id"]
@@ -1863,7 +1793,6 @@ def processURLHistory(jsonObj, facet):
 	except Exception as e:
 		print("ERROR: in appending dictionary to URLHistory")
 		print (e)
-
 
 def number_with_dots(n: Union[int, str]) -> str:
 	if isinstance(n, int) or isinstance(n, str):
@@ -1948,15 +1877,39 @@ def main():
 			logging.info("Exiting dry run.")
 			sys.exit(0)
 		app = QApplication([])
-		_widget=QWidget()
-		msgBox = QMessageBox()
-		reply = msgBox.question(_widget, "CASE syntax check result",
-								"Syntax check went well! Do you want to continue?",
-								QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
 
-		if reply == QMessageBox.No:
+		_widget=QWidget()
+		main_window = QWidget()
+		main_window.setWindowTitle("CASE viewer")
+		main_window.setGeometry(10, 10, 10, 10)
+		main_window.show()
+
+		msgBox = QMessageBox(main_window)
+		# set properties
+		msgBox.setWindowTitle("CASE syntax check result")
+		msgBox.setText("Syntax check went well! Do you want to continue?")
+		msgBox.setIcon(QMessageBox.Icon.Question)
+		# Set buttons by using PyQt6 Enum
+		msgBox.setStandardButtons(
+    	QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+		)
+		msgBox.setDefaultButton(QMessageBox.StandardButton.Yes)
+		# Force te window to be modal
+		msgBox.setWindowModality(Qt.WindowModality.ApplicationModal)
+
+		# the WindowStaysOnTopHint flag maintains the Box over all the others
+		msgBox.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
+		QTimer.singleShot(0, msgBox.activateWindow)
+		QTimer.singleShot(0, msgBox.raise_)
+
+		msgBox.activateWindow()
+		# Show the Box and capture the reply
+		reply = msgBox.exec()
+
+		if reply == QMessageBox.StandardButton.No:
 			sys.exit('Terminate by user.')
 
+		main_window.close()
 #--- Loop over all Observables of the array "uco-core:object"
 		if 'uco-core:object' in json_obj.keys():
 			json_data = json_obj['uco-core:object']
@@ -2069,7 +2022,7 @@ def main():
 	# for w in webURLs:
 	# 	print(f"@id= {w['@id']}")
 	# 	print(f"URL= {w['uco-observable:url']}")
-	
+
 	treeData.insert(0, {'unique_id': ':00000000', 'parent_id': '0', 'short_name': 'Cyber items' })
 
 	totAccounts = len(accounts)
@@ -2230,8 +2183,7 @@ def main():
 	_view.setGeometry(50, 50, 1400, 800)
 	_view.setWindowTitle('Cyber items view - ' + args.input_jsonld + ' (n. Observables: ' + number_with_dots(nObjects) + ')')
 	_view.show()
-	sys.exit(app.exec_())
-
+	sys.exit(app.exec())
 
 if __name__ == '__main__':
 	main()
