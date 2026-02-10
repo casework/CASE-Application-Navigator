@@ -63,6 +63,15 @@ class view(QWidget):
 		self.tree_cyber_item = ''
 
 		self.table = QTableView(self)
+		# ottengo l'header della  QTableView
+		header = self.table.horizontalHeader()
+
+
+		# tutte le colonne si divideranno equamente lo spazio disponibile
+		header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+		header.setVisible(True)
+		header.setStretchLastSection(True)
+
 		self.table.setVisible(True)
 		self.tableData = tableData
 		self.treeData = treeData
@@ -74,12 +83,13 @@ class view(QWidget):
 		self.modelTable = TableModel(tableData)
 		self.table.setModel(self.modelTable)
 		self.table.headers = []
+
 		grid = QGridLayout()
 		grid.setSpacing(10)
 		# grid.addWidget(widget, riga, colonna, rowSpan, colSpan)
 		grid.addWidget(self.tree, 1, 0, 10, 4)
-		grid.addWidget(self.table, 1, 4, 10, 6)
-		grid.addWidget(self.textEdit, 1, 14, 10, 10)
+		grid.addWidget(self.table, 1, 4, 10, 7)
+		grid.addWidget(self.textEdit, 1, 14, 10, 9)
 
 		self.setLayout(grid)
 		self.model = QStandardItemModel()
@@ -211,7 +221,8 @@ class view(QWidget):
 			print('Thread not found')
 			return tData
 		#print(f"threadSlot=\n{threadSlot}")
-		self.headers = ["Date", "Attachments"]
+		self.headers = [" ● Date ● ", " ● Attachments ● "]
+
 		for idMsg in threadSlot:
 			for m in chatMessages:
 				if idMsg == m["@id"]:
@@ -223,19 +234,19 @@ class view(QWidget):
 	def buildDataContacts(self, idObject):
 		tData = []
 		if idObject == ':Accounts':
-			self.headers = ["Identifier", "Phone", "Display name", "Application"]
+			self.headers = [" ● Identifier ● ", " ● Phone ● "]
 			for a in accounts:
 				accountIdentifier = a["uco-observable:accountIdentifier"]
 				accountPhone = a["uco-observable:phoneAccount"]
-				accountApplication = a["uco-observable:application"]
-				accountDiplayName = a["uco-observable:displayName"]
-				tData.append([accountIdentifier, accountPhone, accountDiplayName, accountApplication])
+				#accountApplication = a["uco-observable:application"]
+				#accountDiplayName = a["uco-observable:displayName"]
+				tData.append([accountIdentifier, accountPhone])
 		return tData
 
 	def buildDataBluetooths(self, idObject):
 		tData = []
 		if idObject == ':Bluetooths':
-			self.headers = ["Address"]
+			self.headers = [" ● Address ● "]
 			for b in bluetooths:
 				tData.append([b["uco-observable:addressValue"]])
 		return tData
@@ -246,244 +257,208 @@ class view(QWidget):
 			print('Calendar not found')
 			return tData
 		else:
-			self.headers = ["Subject", "Repeat", "Start time", "End time", "Status"]
+			self.headers = [" ● Subject ● ", " ● Start time ● ", " ● End time ● "]
 			for c in calendars:
 				calendarSubject = c["uco-observable:subject"]
-				calendarRepeatInterval = c["uco-observable:recurrence"]
+				#calendarRepeatInterval = c["uco-observable:recurrence"]
 				calendarStartDate = c["uco-observable:startTime"]
 				calendarEndDate = c["uco-observable:endTime"]
-				calendarStatus = c["uco-observable:eventStatus"]
-				tData.append([calendarSubject, calendarRepeatInterval, calendarStartDate, calendarEndDate, calendarStatus])
+				#calendarStatus = c["uco-observable:eventStatus"]
+				tData.append([calendarSubject, calendarStartDate, calendarEndDate])
 		return tData
 
 	def buildDataPhoneCalls(self, idObject):
 		tData = []
 		if idObject == ':Calls':
-			self.headers = ["From", "To", "Date", "Duration"]
+			self.headers = [" ● From ● ", " ● To ● ", " ● Date ● "]
 			for c in phoneCalls:
 				callDate = c["uco-observable:startTime"]
-				callDuration = c["uco-observable:duration"]
+				#callDuration = c["uco-observable:duration"]
 				callFrom = c["uco-observable:from"]
 				callTo = c["uco-observable:to"]
-				tData.append([callFrom, callTo, callDate, callDuration])
+				tData.append([callFrom, callTo, callDate])
 		return tData
 
 	def buildDataCellSites(self, idObject):
 		tData = []
 		if idObject == ':CellSites':
-			self.headers = ["MCC", "MNC", "LAC", "CID", "Type"]
+			self.headers = [" ● MCC ● ", " ● LAC ● ", " ● Type ● "]
 			for c in cell_sites:
 				cellMCC = c["uco-observable:cellSiteCountryCode"]
-				cellMNC = c["uco-observable:cellSiteNetworkCode"]
+				#cellMNC = c["uco-observable:cellSiteNetworkCode"]
 				cellLAC = c["uco-observable:cellSiteLocationAreaCode"]
-				cellCID = c["uco-observable:cellSiteIdentifier"]
+				#cellCID = c["uco-observable:cellSiteIdentifier"]
 				cellType = c["uco-observable:cellSiteType"]
-				tData.append([cellMCC, cellMNC, cellLAC, cellCID, cellType])
+				tData.append([cellMCC, cellLAC, cellType])
 		return tData
 
 	def buildDataWirelessNet(self, idObject: str) -> list[list[str]]:
 		global wireless_net
 		tData = []
 		if idObject == ':WirelessNet':
-			self.headers = ["SSID", "BSID"]
+			self.headers = [" ● BSID ● "]
 			for w in wireless_net:
-				wirelessSsid = w["uco-observable:ssid"]
+				#wirelessSsid = w["uco-observable:ssid"]
 				wirelessBsid = w["uco-observable:baseStation"]
-				tData.append([wirelessSsid, wirelessBsid])
+				tData.append([wirelessBsid])
 		return tData
 
 	def buildDataSearchedItems(self, idObject):
 		tData = []
 		if idObject == ':SearchedItems':
-			self.headers = ["Source", "Launched time", "Value"]
+			self.headers = [" ● Value ● "]
 			for s in searched_items:
-				searchedSource = s["drafting:searchSource"]
-				searchedTime = s["drafting:searchLaunchedTime"]
+				#searchedSource = s["drafting:searchSource"]
+				#searchedTime = s["drafting:searchLaunchedTime"]
 				searchedValue = s["drafting:searchValue"]
-				tData.append([searchedSource, searchedTime, searchedValue])
+				tData.append([searchedValue])
 		return tData
 
 	def buildDataSocialMediaActivities(self, idObject):
 		tData = []
 		if idObject == ':SocialMediaActivities':
-			self.headers = ["Body", "Title", "Date", "App", "Author Identifier", "Name", "Type", "Account identifier"]
+			self.headers = [" ● App ● ", " ● Type ● "]
 			for s in social_media_activities:
-				socialBody = s["uco-observable:body"]
-				socialTitle = s["uco-observable:pageTitle"]
-				socialDate = s["uco-observable:observableCreatedTime"]
+				#socialBody = s["uco-observable:body"]
+				#socialTitle = s["uco-observable:pageTitle"]
+				#socialDate = s["uco-observable:observableCreatedTime"]
 				socialApp = s["uco-observable:application"]
-				socialAuthorId = s["drafting:authorIdentifier"]
-				socialAccountId = s["uco-observable:accountIdentifier"]
-				socialName = s["drafting:authorName"]
+				#socialAuthorId = s["drafting:authorIdentifier"]
+				#socialAccountId = s["uco-observable:accountIdentifier"]
+				#socialName = s["drafting:authorName"]
 				socialType = s["drafting:activityType"]
-				tData.append([socialBody, socialTitle, socialDate, socialApp, socialAuthorId,
-											socialName, socialType, socialAccountId])
+				tData.append([socialApp, socialType])
 		return tData
 
 	def buildDataEvents(self, idObject):
 		tData = []
 		if idObject == ':Events':
-			self.headers = ["Date Time", "Type", "Text"]
+			self.headers = [" ● Date ● ", " ● Type ● "]
 			for e in events:
 				eCreated = e["uco-observable:observableCreatedTime"]
 				eType = e["uco-observable:eventType"]
-				eText = e["uco-observable:eventText"]
-				tData.append([eCreated, eType, eText])
+				#eText = e["uco-observable:eventText"]
+				tData.append([eCreated, eType])
 		return tData
 
 	def buildDataCookies(self, idObject):
 		tData = []
 		if idObject == ':Cookies':
-			self.headers = ["Name", "Path", "Application", "Created time", "Expiration time"]
+			self.headers = [" ● Name ● ", " ● Application ● "]
 			for c in cookies:
 				cookieName = c["uco-observable:cookieName"]
-				cookiePath = c["uco-observable:cookiePath"]
+				#cookiePath = c["uco-observable:cookiePath"]
 				cookieApp = c["uco-observable:cookieApp"]
-				cookieCreatedTime = c["uco-observable:observableCreatedTime"]
-				cookieExpirationTime = c["uco-observable:expirationTime"]
-				tData.append([cookieName, cookiePath, cookieApp, cookieCreatedTime, cookieExpirationTime])
+				#cookieCreatedTime = c["uco-observable:observableCreatedTime"]
+				#cookieExpirationTime = c["uco-observable:expirationTime"]
+				tData.append([cookieName, cookieApp])
 		return tData
 
 	def buildDataEmailMessages(self, idObject):
 		tData = []
 		if idObject == ':EmailMessages':
-			self.headers = ["From", "To", "Date", "Subject"]
+			self.headers = [" ● From ● ", " ● To ● ", " ● Date ● "]
 			for e in emailMessages:
-				emailSubject = e["uco-observable:subject"]
+				#emailSubject = e["uco-observable:subject"]
 				emailDate = e["uco-observable:sentTime"]
 				emailFrom = e["uco-observable:from"]
 				emailTo = e["uco-observable:to"]
-				tData.append([emailFrom, emailTo, emailDate, emailSubject])
+				tData.append([emailFrom, emailTo, emailDate])
 		return tData
 
 	def buildDataFiles(self, idObject):
 		tData = []
-		self.headers = ["Name", "Path", "Size"]
+		self.headers = [" ● Name ● ", " ● Size ● "]
 
 		if idObject == ':Images':
-			for f in filesImage:
-				fileName = f["uco-observable:fileName"]
-				filePath = f["uco-observable:filePath"]
-				fileSize = f["uco-observable:fileSize"]
-				tData.append([fileName, filePath, fileSize])
+			self.buildDataFileType(filesImage, tData)
+			# for f in filesImage:
+			# 	fileName = f["uco-observable:fileName"]
+			# 	fileSize = f["uco-observable:fileSize"]
+			# 	tData.append([fileName, fileSize])
 
 		if idObject == ':Texts':
-			for f in filesText:
-				fileName = f["uco-observable:fileName"]
-				filePath = f["uco-observable:filePath"]
-				fileSize = f["uco-observable:fileSize"]
-				tData.append([fileName, filePath, fileSize])
+			self.buildDataFileType(filesText, tData)
 
 		if idObject == ':PDFs':
-			for f in filesPDF:
-				fileName = f["uco-observable:fileName"]
-				filePath = f["uco-observable:filePath"]
-				fileSize = f["uco-observable:fileSize"]
-				tData.append([fileName, filePath, fileSize])
+			self.buildDataFileType(filesPDF, tData)
 
 		if idObject == ':Words':
-			for f in filesWord:
-				fileName = f["uco-observable:fileName"]
-				filePath = f["uco-observable:filePath"]
-				fileSize = f["uco-observable:fileSize"]
-				tData.append([fileName, filePath, fileSize])
+			self.buildDataFileType(filesWord, tData)
 
 		if idObject == ':RTFs':
-			for f in filesRTF:
-				fileName = f["uco-observable:fileName"]
-				filePath = f["uco-observable:filePath"]
-				fileSize = f["uco-observable:fileSize"]
-				tData.append([fileName, filePath, fileSize])
+			self.buildDataFileType(filesRTF, tData)
 
 		if idObject == ':Audios':
-			for f in filesAudio:
-				fileName = f["uco-observable:fileName"]
-				filePath = f["uco-observable:filePath"]
-				fileSize = f["uco-observable:fileSize"]
-				tData.append([fileName, filePath, fileSize])
+			self.buildDataFileType(filesAudio, tData)
 
 		if idObject == ':Videos':
-			for f in filesVideo:
-				fileName = f["uco-observable:fileName"]
-				filePath = f["uco-observable:filePath"]
-				fileSize = f["uco-observable:fileSize"]
-				tData.append([fileName, filePath, fileSize])
+			self.buildDataFileType(filesVideo, tData)
 
 		if idObject == ':Archives':
-			for f in filesArchive:
-				fileName = f["uco-observable:fileName"]
-				filePath = f["uco-observable:filePath"]
-				fileSize = f["uco-observable:fileSize"]
-				tData.append([fileName, filePath, fileSize])
+			self.buildDataFileType(filesArchive, tData)
 
 		if idObject == ':Databases':
-			for f in filesDatabase:
-				#fileType = f["uco-core:tag"]
-				fileName = f["uco-observable:fileName"]
-				filePath = f["uco-observable:filePath"]
-				fileSize = f["uco-observable:fileSize"]
-				tData.append([fileName, filePath, fileSize])
+			self.buildDataFileType(filesDatabase, tData)
 
 		if idObject == ':Applications':
-			for f in filesApplication:
-				#fileType = f["uco-core:tag"]
-				fileName = f["uco-observable:fileName"]
-				filePath = f["uco-observable:filePath"]
-				fileSize = f["uco-observable:fileSize"]
-				tData.append([fileName, filePath, fileSize])
+			self.buildDataFileType(filesApplication, tData)
 
 		if idObject == ':Uncategorized':
-			for f in filesUncategorized:
-				fileName = f["uco-observable:fileName"]
-				filePath = f["uco-observable:filePath"]
-				fileSize = f["uco-observable:fileSize"]
-				tData.append([fileName, filePath, fileSize])
+			self.buildDataFileType(filesUncategorized, tData)
+
 		return tData
+
+	def buildDataFileType(self, listFile, tData):
+		for f in listFile:
+				fileName = f["uco-observable:fileName"]
+				fileSize = f["uco-observable:fileSize"]
+				tData.append([fileName, fileSize])
 
 	def buildDataSms(self, idObject):
 		tData = []
 		if idObject == ':Sms':
-			self.headers = ["From", "To", "Date", "Text", "Status"]
+			self.headers = [" ● From ● ", " ● To ● ", " ● Date ● "]
 			for m in smsMessages:
-				smsText = m["uco-observable:messageText"]
+				#smsText = m["uco-observable:messageText"]
 				#smsApp = m["uco-observable:application"]
 				smsSentTime = m["uco-observable:sentTime"]
-				smsStatus = m["uco-observable:allocationStatus"]
+				#smsStatus = m["uco-observable:allocationStatus"]
 				smsFrom = m["uco-observable:from"]
 				smsTo = m["uco-observable:to"]
-				tData.append([smsFrom, smsTo, smsSentTime, smsText, smsStatus])
+				tData.append([smsFrom, smsTo, smsSentTime])
 		return tData
 
 	def buildDataWebBookmarks(self, idObject):
 		tData = []
 		if idObject == ':WebBookmarks':
-			self.headers = ["Url", "App", "Path", "Crteated date"]
+			self.headers = [" ● Url ● ", " ● App ● "]
 			for w in webBookmark:
 				webUrl = w["uco-observable:urlTargeted"]
 				webApp = w["uco-observable:application"]
-				webPath = w["uco-observable:bookmarkPath"]
-				webDate = w["uco-observable:observableCreatedTime"]
-				tData.append([webUrl, webApp, webPath, webDate])
+				#webPath = w["uco-observable:bookmarkPath"]
+				#webDate = w["uco-observable:observableCreatedTime"]
+				tData.append([webUrl, webApp])
 		return tData
 
 	def buildDataWebHistories(self, idObject):
 		tData = []
 		webApp = ''
 		if idObject == ':WebHistories':
-			self.headers = ["Url", "Title", "Last visited", "App"]
+			self.headers = [" ● Url ● ", " ● App ● "]
 			for w in webURLHistory:
 				webUrl = w["uco-observable:url"]
-				webTitle = w["uco-observable:title"]
-				webLastVisited = w["uco-observable:lastVisited"]
+				#webTitle = w["uco-observable:title"]
+				#webLastVisited = w["uco-observable:lastVisited"]
 				webApp = w["uco-observable:browserInformation"]
-				tData.append([webUrl, webTitle, webLastVisited, webApp])
+				tData.append([webUrl, webApp])
 		return tData
 
 	def buildDataWebSearchTerm(self, idObject):
 		tData = []
 		print(f"idObject={idObject}")
 		if idObject == ':WebSearchTerms':
-			self.headers = ["Web search term"]
+			self.headers = [" ● Web search term ● "]
 			for w in webSearchTerm:
 				webTerm = w["uco-observable:searchTerm"]
 				tData.append([webTerm])
@@ -492,12 +467,12 @@ class view(QWidget):
 	def buildDataLocationDevice(self, idObject):
 		tData = []
 		if idObject == ':LocationDevice':
-			self.headers = ["Latitude", "Longitude", "Start date"]
+			self.headers = [" ● Latitude ● ", " ● Longitude ● "]
 			for location in relationMappedBy:
-				lDate = location["uco-observable:mappedByStartDate"]
+				#lDate = location["uco-observable:mappedByStartDate"]
 				lLat = location["uco-observable:mappedByLatitude"]
 				lLong = location["uco-observable:mappedByLongitude"]
-				tData.append([lLat, lLong, lDate])
+				tData.append([lLat, lLong])
 		return tData
 
 	def select_left_bar(self, index):
