@@ -34,9 +34,10 @@ from lib import JSONLD, get_attribute, get_optional_integer_attribute, \
 
 
 class TableModel(QtCore.QAbstractTableModel):
-	def __init__(self, data):
+	def __init__(self, data, headers):
 		super(TableModel, self).__init__()
 		self._data = data
+		self._headers = headers  # Memorizziamo qui i nomi delle colonne
 
 	def data(self, index, role):
 		if role == QtCore.Qt.ItemDataRole.DisplayRole:
@@ -51,8 +52,19 @@ class TableModel(QtCore.QAbstractTableModel):
 
 	def columnCount(self, index):
 		# The following takes the first sub-list, and returns
-		# the length (only works if all rows are an equal length)
-		return len(self._data[0])
+		# the length (only works if all rows are of equal length)
+		if len(self._data) == 0:
+			return 0
+		else:
+			return len(self._data[0])
+
+	# QUESTO METODO CREA L'INTESTAZIONE FISSA
+	def headerData(self, section, orientation, role):
+		if role == QtCore.Qt.ItemDataRole.DisplayRole:
+			if orientation == QtCore.Qt.Orientation.Horizontal:
+				# Restituisce il nome dalla nostra lista headers
+				return self._headers[section]
+		return None
 
 
 class view(QWidget):
@@ -80,7 +92,7 @@ class view(QWidget):
 		self.textEdit.setFont(self.font)
 		self.textEdit.setDocumentTitle("Details")
 		self.textEdit.setHtml('<h2>Here the details will be displayed</h2>')
-		self.modelTable = TableModel(tableData)
+		self.modelTable = TableModel(tableData, [])
 		self.table.setModel(self.modelTable)
 		self.table.headers = []
 
@@ -489,7 +501,7 @@ class view(QWidget):
 		else:
 			self.tree_cyber_item = text
 			self.tableData = self.buildTableData(threadId)
-			self.tableData.insert(0, self.headers)
+			#self.tableData.insert(0, self.headers)
 			print(f"self.tree_cyber_item={self.tree_cyber_item}")
 			file_type = self.tree_cyber_item.split()[0]
 			html_text = ""
@@ -564,7 +576,7 @@ class view(QWidget):
 				html_text = self.gather_all_wireless_nets()
 				self.textEdit.setHtml(html_text)
 
-		self.model = TableModel(self.tableData)
+		self.model = TableModel(self.tableData, self.headers)
 		self.table.setModel(self.model)
 
 	def select_main_panel(self, item):
