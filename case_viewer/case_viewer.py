@@ -1874,7 +1874,7 @@ def main():
 		msgBox = QMessageBox(main_window)
 		# set properties
 		msgBox.setWindowTitle("CASE syntax check result")
-		msgBox.setText("Syntax check went well! Do you want to continue?")
+		msgBox.setText("Syntax check went well! \n\nDo you want to continue?")
 		msgBox.setIcon(QMessageBox.Icon.Question)
 		# Set buttons by using PyQt6 Enum
 		msgBox.setStandardButtons(
@@ -1897,6 +1897,7 @@ def main():
 			sys.exit('Terminate by user.')
 
 		main_window.close()
+		msgBox.close()
 #--- Loop over all Observables of the array "uco-core:object"
 		if 'uco-core:object' in json_obj.keys():
 			json_data = json_obj['uco-core:object']
