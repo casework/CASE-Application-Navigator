@@ -28,7 +28,7 @@ from PyQt6.QtCore import Qt, QTimer
 #from PyQt5 import QtCore
 import logging
 
-from lib import JSONLD, get_attribute, get_optional_integer_attribute, \
+from .lib import JSONLD, get_attribute, get_optional_integer_attribute, \
 						get_optional_string_attribute, get_optional_dict_attribute, \
 						get_optional_list_attribute
 
