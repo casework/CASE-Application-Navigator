@@ -6,11 +6,10 @@ authors = ["Fabrizio Turchi <fabrizio.turchi@cnr.it>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
-requests = "^2.31.0"
-json5 = "^0.9.25"
-argparse = "^1.4.0"
-pyqt6 = "^6.10.2"
+python = "^3.10"
+requests = "^2.34.2"
+json5 = "^0.14.0"
+pyqt6 = "^6.11.0"
 
 [tool.poetry.group.dev]
 optional = true
