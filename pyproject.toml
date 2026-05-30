@@ -17,7 +17,7 @@ optional = true
 [tool.poetry.group.dev.dependencies]
 case-utils = "^0.17"
 mypy = "^1"
-pytest = "^8"
+pytest = ">=8,<10"
 
 [tool.poetry.scripts]
 case_viewer = "case_viewer.case_viewer:main"
